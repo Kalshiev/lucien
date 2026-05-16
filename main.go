@@ -4,8 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/kalshiev/lucien/internal/database"
-	_ "github.com/lib/pq"
+	"github.com/Kalshiev/lucien/internal/database"
 )
 
 type apiCfg struct {
