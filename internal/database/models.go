@@ -7,21 +7,23 @@ package database
 import (
 	"database/sql"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Book struct {
-	ID            int32
+	ID            uuid.UUID
 	Title         string
 	Author        string
 	PublishedDate sql.NullTime
 	Isbn          sql.NullString
-	LibraryID     int32
+	LibraryID     uuid.UUID
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 }
 
 type Library struct {
-	ID          int32
+	ID          uuid.UUID
 	Name        string
 	Description sql.NullString
 	CreatedAt   time.Time

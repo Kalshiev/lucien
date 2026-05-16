@@ -8,6 +8,8 @@ package database
 import (
 	"context"
 	"database/sql"
+
+	"github.com/google/uuid"
 )
 
 const createLibrary = `-- name: CreateLibrary :one
@@ -39,7 +41,7 @@ SELECT id, name, description, created_at, updated_at FROM library
 WHERE id = $1
 `
 
-func (q *Queries) GetLibraryByID(ctx context.Context, id int32) (Library, error) {
+func (q *Queries) GetLibraryByID(ctx context.Context, id uuid.UUID) (Library, error) {
 	row := q.db.QueryRowContext(ctx, getLibraryByID, id)
 	var i Library
 	err := row.Scan(
