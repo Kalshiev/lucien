@@ -13,8 +13,14 @@ import (
 )
 
 const createLibrary = `-- name: CreateLibrary :one
-INSERT INTO library (name, description)
-VALUES ($1, $2)
+INSERT INTO library (id, name, description, created_at, updated_at)
+VALUES (
+    gen_random_uuid(),
+    $1,
+    $2,
+    NOW(),
+    NOW()
+)
 RETURNING id, name, description, created_at, updated_at
 `
 
@@ -36,6 +42,50 @@ func (q *Queries) CreateLibrary(ctx context.Context, arg CreateLibraryParams) (L
 	return i, err
 }
 
+const deleteLibrary = `-- name: DeleteLibrary :exec
+DELETE FROM library
+WHERE id = $1
+`
+
+func (q *Queries) DeleteLibrary(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteLibrary, id)
+	return err
+}
+
+const getAllLibraries = `-- name: GetAllLibraries :many
+SELECT id, name, description, created_at, updated_at FROM library
+ORDER BY created_at DESC
+`
+
+func (q *Queries) GetAllLibraries(ctx context.Context) ([]Library, error) {
+	rows, err := q.db.QueryContext(ctx, getAllLibraries)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Library
+	for rows.Next() {
+		var i Library
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getLibraryByID = `-- name: GetLibraryByID :one
 SELECT id, name, description, created_at, updated_at FROM library
 WHERE id = $1
@@ -43,6 +93,34 @@ WHERE id = $1
 
 func (q *Queries) GetLibraryByID(ctx context.Context, id uuid.UUID) (Library, error) {
 	row := q.db.QueryRowContext(ctx, getLibraryByID, id)
+	var i Library
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateLibrary = `-- name: UpdateLibrary :one
+UPDATE library
+SET name = $2,
+    description = $3,
+    updated_at = NOW()
+WHERE id = $1
+RETURNING id, name, description, created_at, updated_at
+`
+
+type UpdateLibraryParams struct {
+	ID          uuid.UUID
+	Name        string
+	Description sql.NullString
+}
+
+func (q *Queries) UpdateLibrary(ctx context.Context, arg UpdateLibraryParams) (Library, error) {
+	row := q.db.QueryRowContext(ctx, updateLibrary, arg.ID, arg.Name, arg.Description)
 	var i Library
 	err := row.Scan(
 		&i.ID,

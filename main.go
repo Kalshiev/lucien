@@ -9,6 +9,7 @@ import (
 
 	"github.com/Kalshiev/lucien/internal/database"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 type apiCfg struct {
@@ -39,12 +40,26 @@ func main() {
 
 	mux.Handle("/", http.FileServer(http.Dir(webRoot)))
 
-	mux.HandleFunc("POST /api/libraries", apiCfg.handlerCreateLibrary)
+	//LIBRARIES
 
+	// API endpoint to get create a libray
+	mux.HandleFunc("POST /api/libraries", apiCfg.handlerCreateLibrary)
+	// API endpoint to get all libraries in the DB
+	mux.HandleFunc("GET /api/libraries", apiCfg.handlerGetAllLibraries)
+	// API endpoint to get a library by its uuid
+	mux.HandleFunc("GET /api/libraries/{libraryID}", apiCfg.handlerGetLibraryByID)
+	// API endpoint to update a library
+	mux.HandleFunc("PATCH /api/libraries/{libraryID}", apiCfg.handlerUpdateLibrary)
+	// API endpoint to delete a library
+	mux.HandleFunc("DELETE /api/libraries/{libraryID}", apiCfg.handlerDeleteLibrary)
 	srv := &http.Server{
 		Addr:    ":" + port,
 		Handler: mux,
 	}
+
+	// COLECTIONS
+
+	// BOOKS
 
 	log.Printf("Serving on port: %s", port)
 	log.Fatal(srv.ListenAndServe())

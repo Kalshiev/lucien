@@ -1,0 +1,27 @@
+// Create a new library
+POST http://localhost:8080/api/libraries
+Content-Type: application/json
+
+{
+  "name": "A Third Library",
+  "description": "Another library created for testing purposes"
+}
+
+####
+// Get all libraries
+GET http://localhost:8080/api/libraries
+####
+// Get a specific library by ID (replace {id} with the actual library ID)
+GET http://localhost:8080/api/libraries/dbc58034-11f7-4122-a8b2-9cfb018a6a41
+####
+// Update a library (replace {id} with the actual library ID)
+PATCH http://localhost:8080/api/libraries/dbc58034-11f7-4122-a8b2-9cfb018a6a41
+Content-Type: application/json 
+
+{
+  "name": "Updated Library Name",
+  "description": "Updated description for the library"
+}
+####
+// DELETE a library (replace {id} with the actual library ID)
+DELETE http://localhost:8080/api/libraries/dbc58034-11f7-4122-a8b2-9cfb018a6a41 
