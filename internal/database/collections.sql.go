@@ -47,9 +47,8 @@ func (q *Queries) CreateCollection(ctx context.Context, arg CreateCollectionPara
 }
 
 const deleteCollection = `-- name: DeleteCollection :exec
-UPDATE library
-SET collection_count = collection_count - 1
-WHERE id = (SELECT b.library_id FROM collections b WHERE b.id = $1)
+DELETE FROM collections
+WHERE id = $1
 `
 
 func (q *Queries) DeleteCollection(ctx context.Context, id uuid.UUID) error {

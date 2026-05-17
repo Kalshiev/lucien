@@ -9,9 +9,6 @@ VALUES (
     $3
 )
 RETURNING *;
-UPDATE library
-SET collection_count = collection_count + 1
-WHERE id = $3;
 
 -- name: GetCollectionByID :one
 SELECT * FROM collections
@@ -31,8 +28,5 @@ WHERE id = $1
 RETURNING *;
 
 -- name: DeleteCollection :exec
-UPDATE library
-SET collection_count = collection_count - 1
-WHERE id = (SELECT b.library_id FROM collections b WHERE b.id = $1);
 DELETE FROM collections
 WHERE id = $1;

@@ -62,9 +62,8 @@ func (q *Queries) CreateBook(ctx context.Context, arg CreateBookParams) (Book, e
 }
 
 const deleteBook = `-- name: DeleteBook :exec
-UPDATE collections
-SET book_count = book_count - 1
-WHERE id = (SELECT b.collection_id FROM books b WHERE b.id = $1)
+DELETE FROM books
+WHERE id = $1
 `
 
 func (q *Queries) DeleteBook(ctx context.Context, id uuid.UUID) error {

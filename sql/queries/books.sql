@@ -12,9 +12,6 @@ VALUES (
     $6
 )
 RETURNING *;
-UPDATE collections
-SET book_count = book_count + 1
-WHERE id = $5;
 
 -- name: GetBookByID :one
 SELECT * FROM books
@@ -36,8 +33,5 @@ WHERE id = $1
 RETURNING *;
 
 -- name: DeleteBook :exec
-UPDATE collections
-SET book_count = book_count - 1
-WHERE id = (SELECT b.collection_id FROM books b WHERE b.id = $1);
 DELETE FROM books
 WHERE id = $1;
