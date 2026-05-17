@@ -20,12 +20,24 @@ type Book struct {
 	LibraryID     uuid.UUID
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
+	CollectionID  uuid.NullUUID
 }
 
-type Library struct {
+type Collection struct {
 	ID          uuid.UUID
 	Name        string
 	Description sql.NullString
+	BookCount   int32
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+	LibraryID   uuid.UUID
+}
+
+type Library struct {
+	ID              uuid.UUID
+	Name            string
+	Description     sql.NullString
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+	CollectionCount int32
 }

@@ -21,7 +21,7 @@ VALUES (
     NOW(),
     NOW()
 )
-RETURNING id, name, description, created_at, updated_at
+RETURNING id, name, description, created_at, updated_at, collection_count
 `
 
 type CreateLibraryParams struct {
@@ -38,6 +38,7 @@ func (q *Queries) CreateLibrary(ctx context.Context, arg CreateLibraryParams) (L
 		&i.Description,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.CollectionCount,
 	)
 	return i, err
 }
@@ -53,7 +54,7 @@ func (q *Queries) DeleteLibrary(ctx context.Context, id uuid.UUID) error {
 }
 
 const getAllLibraries = `-- name: GetAllLibraries :many
-SELECT id, name, description, created_at, updated_at FROM library
+SELECT id, name, description, created_at, updated_at, collection_count FROM library
 ORDER BY created_at DESC
 `
 
@@ -72,6 +73,7 @@ func (q *Queries) GetAllLibraries(ctx context.Context) ([]Library, error) {
 			&i.Description,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.CollectionCount,
 		); err != nil {
 			return nil, err
 		}
@@ -87,7 +89,7 @@ func (q *Queries) GetAllLibraries(ctx context.Context) ([]Library, error) {
 }
 
 const getLibraryByID = `-- name: GetLibraryByID :one
-SELECT id, name, description, created_at, updated_at FROM library
+SELECT id, name, description, created_at, updated_at, collection_count FROM library
 WHERE id = $1
 `
 
@@ -100,6 +102,7 @@ func (q *Queries) GetLibraryByID(ctx context.Context, id uuid.UUID) (Library, er
 		&i.Description,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.CollectionCount,
 	)
 	return i, err
 }
@@ -110,7 +113,7 @@ SET name = $2,
     description = $3,
     updated_at = NOW()
 WHERE id = $1
-RETURNING id, name, description, created_at, updated_at
+RETURNING id, name, description, created_at, updated_at, collection_count
 `
 
 type UpdateLibraryParams struct {
@@ -128,6 +131,7 @@ func (q *Queries) UpdateLibrary(ctx context.Context, arg UpdateLibraryParams) (L
 		&i.Description,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.CollectionCount,
 	)
 	return i, err
 }
