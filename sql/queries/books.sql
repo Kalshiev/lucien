@@ -17,9 +17,35 @@ RETURNING *;
 SELECT * FROM books
 WHERE id = $1;
 
+-- name: AddBookToCollection :one
+UPDATE books
+SET collection_id = $2,
+    updated_at = NOW()
+WHERE id = $1
+RETURNING *;
+
+-- name: RemoveBookFromCollection :one
+UPDATE books
+SET collection_id = NULL,
+    updated_at = NOW()
+WHERE id = $1
+RETURNING *;
+
+-- name: MoveBookToCollection :one
+UPDATE books
+SET collection_id = $2,
+    updated_at = NOW()
+WHERE id = $1
+RETURNING *;
+
 -- name: GetAllBooksFromCollection :many
 SELECT * FROM books
 WHERE collection_id = $1
+ORDER BY created_at DESC;
+
+-- name: GetAllBooksFromLibrary :many
+SELECT * FROM books
+WHERE library_id = $1
 ORDER BY created_at DESC;
 
 -- name: UpdateBook :one

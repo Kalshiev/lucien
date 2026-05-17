@@ -3,8 +3,8 @@ POST http://localhost:8080/api/libraries
 Content-Type: application/json
 
 {
-  "name": "A Third Library",
-  "description": "Another library created for testing purposes"
+  "name": "My Library",
+  "description": "This is the library of Kalshiev"
 }
 
 ####
@@ -15,7 +15,7 @@ GET http://localhost:8080/api/libraries
 GET http://localhost:8080/api/libraries/dbc58034-11f7-4122-a8b2-9cfb018a6a41
 ####
 // Update a library (replace {id} with the actual library ID)
-PATCH http://localhost:8080/api/libraries/dbc58034-11f7-4122-a8b2-9cfb018a6a41
+PATCH http://localhost:8080/api/libraries/67af466e-6d2e-457d-82fa-d0c21607d2f9
 Content-Type: application/json 
 
 {
@@ -24,4 +24,7 @@ Content-Type: application/json
 }
 ####
 // DELETE a library (replace {id} with the actual library ID)
-DELETE http://localhost:8080/api/libraries/dbc58034-11f7-4122-a8b2-9cfb018a6a41 
+DELETE http://localhost:8080/api/libraries/dbc58034-11f7-4122-a8b2-9cfb018a6a41
+####
+// RESET SYSTEM (delete all libraries)
+POST http://localhost:8080/admin/reset

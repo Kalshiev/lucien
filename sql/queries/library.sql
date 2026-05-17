@@ -28,3 +28,6 @@ RETURNING *;
 -- name: DeleteLibrary :exec
 DELETE FROM library
 WHERE id = $1;
+
+-- name: DeleteAllLibraries :exec
+DELETE FROM library;

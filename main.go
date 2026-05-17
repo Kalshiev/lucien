@@ -13,8 +13,9 @@ import (
 )
 
 type apiCfg struct {
-	db       *database.Queries
-	platform string
+	db          *database.Queries
+	platform    string
+	tokenSecret string
 }
 
 func main() {
@@ -23,6 +24,7 @@ func main() {
 	const webRoot = "./static"
 	dbURL := os.Getenv("DB_URL")
 	platform := os.Getenv("PLATFORM")
+	secret := os.Getenv("SECRET_KEY")
 
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
@@ -32,15 +34,22 @@ func main() {
 	dbQueries := database.New(db)
 
 	apiCfg := apiCfg{
-		db:       dbQueries,
-		platform: platform,
+		db:          dbQueries,
+		platform:    platform,
+		tokenSecret: secret,
 	}
 
 	mux := http.NewServeMux()
 
 	mux.Handle("/", http.FileServer(http.Dir(webRoot)))
 
-	//LIBRARIES
+	// ADMIN
+	// API Endpoint to reset all the system CAUTION!
+	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
+
+	// USERS
+
+	// LIBRARIES
 
 	// API endpoint to get create a libray
 	mux.HandleFunc("POST /api/libraries", apiCfg.handlerCreateLibrary)

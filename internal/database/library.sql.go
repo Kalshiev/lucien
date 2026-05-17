@@ -43,6 +43,15 @@ func (q *Queries) CreateLibrary(ctx context.Context, arg CreateLibraryParams) (L
 	return i, err
 }
 
+const deleteAllLibraries = `-- name: DeleteAllLibraries :exec
+DELETE FROM library
+`
+
+func (q *Queries) DeleteAllLibraries(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deleteAllLibraries)
+	return err
+}
+
 const deleteLibrary = `-- name: DeleteLibrary :exec
 DELETE FROM library
 WHERE id = $1

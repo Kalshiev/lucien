@@ -12,6 +12,36 @@ import (
 	"github.com/google/uuid"
 )
 
+const addBookToCollection = `-- name: AddBookToCollection :one
+UPDATE books
+SET collection_id = $2,
+    updated_at = NOW()
+WHERE id = $1
+RETURNING id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id
+`
+
+type AddBookToCollectionParams struct {
+	ID           uuid.UUID
+	CollectionID uuid.NullUUID
+}
+
+func (q *Queries) AddBookToCollection(ctx context.Context, arg AddBookToCollectionParams) (Book, error) {
+	row := q.db.QueryRowContext(ctx, addBookToCollection, arg.ID, arg.CollectionID)
+	var i Book
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Author,
+		&i.PublishedDate,
+		&i.Isbn,
+		&i.LibraryID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.CollectionID,
+	)
+	return i, err
+}
+
 const createBook = `-- name: CreateBook :one
 INSERT INTO books (id, title, author, published_date, isbn, collection_id, created_at, updated_at, library_id)
 VALUES (
@@ -110,6 +140,45 @@ func (q *Queries) GetAllBooksFromCollection(ctx context.Context, collectionID uu
 	return items, nil
 }
 
+const getAllBooksFromLibrary = `-- name: GetAllBooksFromLibrary :many
+SELECT id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id FROM books
+WHERE library_id = $1
+ORDER BY created_at DESC
+`
+
+func (q *Queries) GetAllBooksFromLibrary(ctx context.Context, libraryID uuid.UUID) ([]Book, error) {
+	rows, err := q.db.QueryContext(ctx, getAllBooksFromLibrary, libraryID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Book
+	for rows.Next() {
+		var i Book
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Author,
+			&i.PublishedDate,
+			&i.Isbn,
+			&i.LibraryID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.CollectionID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getBookByID = `-- name: GetBookByID :one
 SELECT id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id FROM books
 WHERE id = $1
@@ -117,6 +186,61 @@ WHERE id = $1
 
 func (q *Queries) GetBookByID(ctx context.Context, id uuid.UUID) (Book, error) {
 	row := q.db.QueryRowContext(ctx, getBookByID, id)
+	var i Book
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Author,
+		&i.PublishedDate,
+		&i.Isbn,
+		&i.LibraryID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.CollectionID,
+	)
+	return i, err
+}
+
+const moveBookToCollection = `-- name: MoveBookToCollection :one
+UPDATE books
+SET collection_id = $2,
+    updated_at = NOW()
+WHERE id = $1
+RETURNING id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id
+`
+
+type MoveBookToCollectionParams struct {
+	ID           uuid.UUID
+	CollectionID uuid.NullUUID
+}
+
+func (q *Queries) MoveBookToCollection(ctx context.Context, arg MoveBookToCollectionParams) (Book, error) {
+	row := q.db.QueryRowContext(ctx, moveBookToCollection, arg.ID, arg.CollectionID)
+	var i Book
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Author,
+		&i.PublishedDate,
+		&i.Isbn,
+		&i.LibraryID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.CollectionID,
+	)
+	return i, err
+}
+
+const removeBookFromCollection = `-- name: RemoveBookFromCollection :one
+UPDATE books
+SET collection_id = NULL,
+    updated_at = NOW()
+WHERE id = $1
+RETURNING id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id
+`
+
+func (q *Queries) RemoveBookFromCollection(ctx context.Context, id uuid.UUID) (Book, error) {
+	row := q.db.QueryRowContext(ctx, removeBookFromCollection, id)
 	var i Book
 	err := row.Scan(
 		&i.ID,

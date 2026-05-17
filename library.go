@@ -53,6 +53,7 @@ func (cfg *apiCfg) handlerCreateLibrary(w http.ResponseWriter, r *http.Request) 
 		CreatedAt:   library.CreatedAt,
 		UpdatedAt:   library.UpdatedAt,
 	})
+	log.Printf("%s created with id %s", library.Name, library.ID)
 }
 
 func (cfg *apiCfg) handlerGetLibraryByID(w http.ResponseWriter, r *http.Request) {
@@ -62,7 +63,7 @@ func (cfg *apiCfg) handlerGetLibraryByID(w http.ResponseWriter, r *http.Request)
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	log.Println(uuid)
+	log.Printf("Library fetched: %s", uuid)
 
 	library, err := cfg.db.GetLibraryByID(r.Context(), uuid)
 	if err != nil {
@@ -158,4 +159,18 @@ func (cfg *apiCfg) handlerDeleteLibrary(w http.ResponseWriter, r *http.Request) 
 	}
 
 	respondJson(w, http.StatusOK, "Library successfuly deleted")
+}
+
+func (cfg *apiCfg) handlerReset(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
+	if cfg.platform != "dev" {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	err := cfg.db.DeleteAllLibraries(r.Context())
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 }
