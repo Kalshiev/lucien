@@ -19,6 +19,10 @@ SELECT * FROM collections
 WHERE library_id = $1
 ORDER BY created_at DESC;
 
+-- name: GetAllCollections :many
+SELECT * FROM collections
+ORDER BY created_at DESC;
+
 -- name: UpdateCollection :one
 UPDATE collections
 SET name = $2,

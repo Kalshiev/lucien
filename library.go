@@ -63,7 +63,6 @@ func (cfg *apiCfg) handlerGetLibraryByID(w http.ResponseWriter, r *http.Request)
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	log.Printf("Library fetched: %s", uuid)
 
 	library, err := cfg.db.GetLibraryByID(r.Context(), uuid)
 	if err != nil {
@@ -78,6 +77,7 @@ func (cfg *apiCfg) handlerGetLibraryByID(w http.ResponseWriter, r *http.Request)
 		CreatedAt:   library.CreatedAt,
 		UpdatedAt:   library.UpdatedAt,
 	})
+	log.Printf("Library fetched: %s", uuid)
 }
 
 func (cfg *apiCfg) handlerGetAllLibraries(w http.ResponseWriter, r *http.Request) {
@@ -158,7 +158,7 @@ func (cfg *apiCfg) handlerDeleteLibrary(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	respondJson(w, http.StatusOK, "Library successfuly deleted")
+	respondJson(w, http.StatusOK, "Library with id "+id+" successfuly deleted")
 }
 
 func (cfg *apiCfg) handlerReset(w http.ResponseWriter, r *http.Request) {

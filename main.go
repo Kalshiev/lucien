@@ -44,13 +44,12 @@ func main() {
 	mux.Handle("/", http.FileServer(http.Dir(webRoot)))
 
 	// ADMIN
-	// API Endpoint to reset all the system CAUTION!
+	// API endpoint to reset all the system CAUTION!
 	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
 
 	// USERS
 
 	// LIBRARIES
-
 	// API endpoint to get create a libray
 	mux.HandleFunc("POST /api/libraries", apiCfg.handlerCreateLibrary)
 	// API endpoint to get all libraries in the DB
@@ -67,6 +66,16 @@ func main() {
 	}
 
 	// COLECTIONS
+	// API endpoint to create a collection
+	mux.HandleFunc("POST /api/collections", apiCfg.handlerCreateCollection)
+	// API endpoint to get a collection by id
+	mux.HandleFunc("GET /api/collections/{collectionID}", apiCfg.handlerGetCollectionByID)
+	// API endpoint to get all collections in a library
+	mux.HandleFunc("GET /api/collections", apiCfg.handlerGetAllCollectionsInLibrary)
+	// API endpoint to update a collection
+	mux.HandleFunc("PATCH /api/collections/{collectionID}", apiCfg.handlerUpdateCollection)
+	//API endpoint to delete a collection
+	mux.HandleFunc("DELETE /api/collections/{collectionID}", apiCfg.handlerDeleteCollection)
 
 	// BOOKS
 
