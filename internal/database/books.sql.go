@@ -101,6 +101,44 @@ func (q *Queries) DeleteBook(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const getAllBooks = `-- name: GetAllBooks :many
+SELECT id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id FROM books
+ORDER BY created_at DESC
+`
+
+func (q *Queries) GetAllBooks(ctx context.Context) ([]Book, error) {
+	rows, err := q.db.QueryContext(ctx, getAllBooks)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Book
+	for rows.Next() {
+		var i Book
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Author,
+			&i.PublishedDate,
+			&i.Isbn,
+			&i.LibraryID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.CollectionID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getAllBooksFromCollection = `-- name: GetAllBooksFromCollection :many
 SELECT id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id FROM books
 WHERE collection_id = $1
@@ -186,36 +224,6 @@ WHERE id = $1
 
 func (q *Queries) GetBookByID(ctx context.Context, id uuid.UUID) (Book, error) {
 	row := q.db.QueryRowContext(ctx, getBookByID, id)
-	var i Book
-	err := row.Scan(
-		&i.ID,
-		&i.Title,
-		&i.Author,
-		&i.PublishedDate,
-		&i.Isbn,
-		&i.LibraryID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.CollectionID,
-	)
-	return i, err
-}
-
-const moveBookToCollection = `-- name: MoveBookToCollection :one
-UPDATE books
-SET collection_id = $2,
-    updated_at = NOW()
-WHERE id = $1
-RETURNING id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id
-`
-
-type MoveBookToCollectionParams struct {
-	ID           uuid.UUID
-	CollectionID uuid.NullUUID
-}
-
-func (q *Queries) MoveBookToCollection(ctx context.Context, arg MoveBookToCollectionParams) (Book, error) {
-	row := q.db.QueryRowContext(ctx, moveBookToCollection, arg.ID, arg.CollectionID)
 	var i Book
 	err := row.Scan(
 		&i.ID,

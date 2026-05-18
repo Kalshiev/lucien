@@ -1,0 +1,39 @@
+// Create a new library
+POST http://localhost:8080/api/libraries
+Content-Type: application/json
+
+{
+  "name": "MyLibrary",
+  "description": "This is the library of Kalshiev"
+}
+
+####
+// Get all libraries
+GET http://localhost:8080/api/libraries
+####
+// Get a specific library by ID (replace {id} with the actual library ID)
+GET http://localhost:8080/api/libraries/dbc58034-11f7-4122-a8b2-9cfb018a6a41
+####
+// Update a library (replace {id} with the actual library ID)
+PATCH http://localhost:8080/api/libraries/67af466e-6d2e-457d-82fa-d0c21607d2f9
+Content-Type: application/json 
+
+{
+  "name": "Updated Library Name",
+  "description": "Updated description for the library"
+}
+####
+// DELETE a library (replace {id} with the actual library ID)
+DELETE http://localhost:8080/api/libraries/dbc58034-11f7-4122-a8b2-9cfb018a6a41
+####
+// Create a new book
+POST http://localhost:8080/api/books
+Content-Type: application/json
+
+{
+  "title": "Another Book Title",
+  "author": "Kalshiev",
+  "isbn": "123-456784556",
+  "library_id": "8c9f6906-7946-415e-868a-30ce26b4e3ca",
+  "collection_id": "068edb21-6231-4093-a6c6-c622ffebb66e"
+}

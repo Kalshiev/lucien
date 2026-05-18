@@ -27,21 +27,20 @@ func (cfg *apiCfg) handlerCreateCollection(w http.ResponseWriter, r *http.Reques
 	type parameters struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
-		LibraryID   string `json:"library_id"`
 	}
 
-	decoder := json.NewDecoder(r.Body)
-	params := parameters{}
-	err := decoder.Decode(&params)
+	id := r.PathValue("libraryID")
+	libuuid, err := uuid.Parse(id)
 	if err != nil {
-		fmt.Println("JSON decoding failed")
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	libraryID, err := uuid.Parse(params.LibraryID)
+	decoder := json.NewDecoder(r.Body)
+	params := parameters{}
+	err = decoder.Decode(&params)
 	if err != nil {
-		fmt.Println("UUID parsing failed")
+		fmt.Println("JSON decoding failed")
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -49,7 +48,7 @@ func (cfg *apiCfg) handlerCreateCollection(w http.ResponseWriter, r *http.Reques
 	collection, err := cfg.db.CreateCollection(r.Context(), database.CreateCollectionParams{
 		Name:        params.Name,
 		Description: sql.NullString{String: params.Description, Valid: true},
-		LibraryID:   libraryID,
+		LibraryID:   libuuid,
 	})
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err.Error())
@@ -97,16 +96,14 @@ func (cfg *apiCfg) handlerGetAllCollectionsInLibrary(w http.ResponseWriter, r *h
 	var collections []database.Collection
 	var err error
 
-	qs := r.URL.Query().Get("library_id")
-	if qs != "" {
-		libraryID, Parserr := uuid.Parse(qs)
+	id := r.PathValue("libraryID")
+	if id != "" {
+		libraryID, Parserr := uuid.Parse(id)
 		if Parserr != nil {
 			respondError(w, http.StatusBadRequest, Parserr.Error())
 			return
 		}
 		collections, err = cfg.db.GetAllCollectionsFromLibrary(r.Context(), libraryID)
-	} else {
-		collections, err = cfg.db.GetAllCollections(r.Context())
 	}
 
 	if err != nil {

@@ -65,19 +65,35 @@ func main() {
 		Handler: mux,
 	}
 
-	// COLECTIONS
+	// COLLECTIONS
 	// API endpoint to create a collection
-	mux.HandleFunc("POST /api/collections", apiCfg.handlerCreateCollection)
+	mux.HandleFunc("POST /api/libraries/{libraryID}/collections", apiCfg.handlerCreateCollection)
 	// API endpoint to get a collection by id
-	mux.HandleFunc("GET /api/collections/{collectionID}", apiCfg.handlerGetCollectionByID)
+	mux.HandleFunc("GET /api/libraries/{libraryID}/collections/{collectionID}", apiCfg.handlerGetCollectionByID)
 	// API endpoint to get all collections in a library
-	mux.HandleFunc("GET /api/collections", apiCfg.handlerGetAllCollectionsInLibrary)
+	mux.HandleFunc("GET /api/libraries/{libraryID}/collections", apiCfg.handlerGetAllCollectionsInLibrary)
 	// API endpoint to update a collection
-	mux.HandleFunc("PATCH /api/collections/{collectionID}", apiCfg.handlerUpdateCollection)
+	mux.HandleFunc("PATCH /api/libraries/{libraryID}/collections/{collectionID}", apiCfg.handlerUpdateCollection)
 	//API endpoint to delete a collection
-	mux.HandleFunc("DELETE /api/collections/{collectionID}", apiCfg.handlerDeleteCollection)
+	mux.HandleFunc("DELETE /api/libraries/{libraryID}/collections/{collectionID}", apiCfg.handlerDeleteCollection)
 
 	// BOOKS
+	// API endpoint to create a book
+	mux.HandleFunc("POST /api/libraries/{libraryID}/books", apiCfg.handlerCreateBookInLibrary)
+	// API endpoint to get a single book by id
+	mux.HandleFunc("GET /api/libraries/{libraryID}/books/{bookID}", apiCfg.handlerGetBookByID)
+	// API endpoint to update a book by id
+	mux.HandleFunc("PATCH /api/libraries/{libraryID}/books/{bookID}", apiCfg.handlerUpdateBook)
+	// API endpoint to get all books in a library
+	mux.HandleFunc("GET /api/libraries/{libraryID}/books", apiCfg.handlerGetAllBooksFromLibrary)
+	// API endpoint to get all books in a collection
+	mux.HandleFunc("GET /api/libraries/{libraryID}/collections/{collectionID}/books", apiCfg.handlerGetAllBooksFromCollection)
+	// API endpoint to add or move a book to a collection or from another collection
+	mux.HandleFunc("PATCH /api/libraries/{libraryID}/collections/{collectionID}/books/{bookID}", apiCfg.handlerAddBookToCollection)
+	// API endpoint to remove a book from a collection
+	mux.HandleFunc("DELETE /api/libraries/{libraryID}/collections/{collectionID}/books/{bookID}", apiCfg.handlerRemoveBookFromCollection)
+	// API endpoint to delete a book from a library
+	mux.HandleFunc("DELETE /api/libraries/{libraryID}/books/{bookID}", apiCfg.handlerDeleteBook)
 
 	log.Printf("Serving on port: %s", port)
 	log.Fatal(srv.ListenAndServe())
