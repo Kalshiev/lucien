@@ -1,26 +1,32 @@
-
 // Create a new collection
-POST http://localhost:8080/api/collections
+POST http://localhost:8080/api/libraries/717a63ce-5428-44a9-89d8-e9e139d0984f/collections
 Content-Type: application/json
 
 {
-  "name": "A Collection",
-  "description": "This is the collection of Kalshiev",
-  "library_id": "8c9f6906-7946-415e-868a-30ce26b4e3ca"
+  "name": "Philosophy Books",
+  "description": "This is the collection of Kalshiev"
 }
 ####
-// Get all collections
-GET http://localhost:8080/api/collections
+// Get all collections in a library
+GET http://localhost:8080/api/libraries/717a63ce-5428-44a9-89d8-e9e139d0984f/collections
 ####
-// Get all collections in libray (replace {library_id} with the actual library ID)
-GET http://localhost:8080/api/collections?library_id=164aa250-9393-44d0-8c1e-cbcd3f7e4a6b
+// Get a specific collection by ID
+GET http://localhost:8080/api/libraries/717a63ce-5428-44a9-89d8-e9e139d0984f/collections/1
 ####
-// update a collection (replace {id} with the actual collection ID)
-PATCH http://localhost:8080/api/collections/4cdeb3ef-080d-4878-9969-0670764ee4f8
+// Update a collection
+PUT http://localhost:8080/api/libraries/717a63ce-5428-44a9-89d8-e9e139d0984f/collections/1
 Content-Type: application/json
 
 {
-  "name": "Updated Collection Name",
-  "description": "Updated description for the collection"
+  "name": "Updated Philosophy Books",
+  "description": "This is the updated collection of Kalshiev"
 }
 ####
+// Delete a collection
+DELETE http://localhost:8080/api/libraries/717a63ce-5428-44a9-89d8-e9e139d0984f/collections/1
+####
+// Get all books in a collection
+GET http://localhost:8080/api/libraries/717a63ce-5428-44a9-89d8-e9e139d0984f/collections/ce4ae9d7-8982-4c4f-a5f5-b8cae22ad867/books
+####
+// Add a book to a collection
+PATCH http://localhost:8080/api/libraries/717a63ce-5428-44a9-89d8-e9e139d0984f/collections/ce4ae9d7-8982-4c4f-a5f5-b8cae22ad867/books/0d5d2207-fec5-4f74-a0e6-e28c09a0609f

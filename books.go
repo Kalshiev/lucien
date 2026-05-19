@@ -14,6 +14,7 @@ import (
 )
 
 type Book struct {
+	ID            uuid.UUID `json:"id"`
 	Title         string    `json:"title"`
 	Author        string    `json:"author"`
 	PublishedDate time.Time `json:"published_date"`
@@ -105,6 +106,7 @@ func (cfg *apiCfg) handlerGetBookByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondJson(w, http.StatusOK, Book{
+		ID:            book.ID,
 		Title:         book.Title,
 		Author:        book.Author,
 		PublishedDate: book.PublishedDate.Time,
@@ -139,6 +141,7 @@ func (cfg *apiCfg) handlerGetAllBooksFromLibrary(w http.ResponseWriter, r *http.
 
 	for idx, book := range books {
 		response[idx] = Book{
+			ID:            book.ID,
 			Title:         book.Title,
 			Author:        book.Author,
 			Isbn:          book.Isbn.String,
@@ -180,6 +183,7 @@ func (cfg *apiCfg) handlerGetAllBooksFromCollection(w http.ResponseWriter, r *ht
 
 	for idx, book := range books {
 		response[idx] = Book{
+			ID:            book.ID,
 			Title:         book.Title,
 			Author:        book.Author,
 			Isbn:          book.Isbn.String,
@@ -274,6 +278,7 @@ func (cfg *apiCfg) handlerAddBookToCollection(w http.ResponseWriter, r *http.Req
 	}
 
 	respondJson(w, http.StatusAccepted, book)
+	log.Printf("Book %s added to collection %s", book.ID, colId)
 }
 
 func (cfg *apiCfg) handlerRemoveBookFromCollection(w http.ResponseWriter, r *http.Request) {
@@ -292,6 +297,7 @@ func (cfg *apiCfg) handlerRemoveBookFromCollection(w http.ResponseWriter, r *htt
 	}
 
 	respondJson(w, http.StatusAccepted, book)
+	log.Printf("Book %s removed from collection %s", book.ID, book.CollectionID.UUID)
 }
 
 func (cfg *apiCfg) handlerDeleteBook(w http.ResponseWriter, r *http.Request) {

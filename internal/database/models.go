@@ -41,3 +41,13 @@ type Library struct {
 	UpdatedAt       time.Time
 	CollectionCount int32
 }
+
+type User struct {
+	ID           uuid.UUID
+	Username     string
+	Email        string
+	PasswordHash string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	LibraryID    uuid.UUID
+}

@@ -1,0 +1,31 @@
+// Create a new book
+POST http://localhost:8080/api/libraries/717a63ce-5428-44a9-89d8-e9e139d0984f/books
+Content-Type: application/json
+
+{
+  "title": "Tales of Mystery and Imagination",
+  "author": "Edgar Allan Poe",
+  "isbn": "978-0141036144"  
+}
+####
+// Get all books in a library
+GET http://localhost:8080/api/libraries/717a63ce-5428-44a9-89d8-e9e139d0984f/books
+
+####
+// Get a specific book by ID (replace {id} with the actual book ID)
+GET http://localhost:8080/api/libraries/717a63ce-5428-44a9-89d8-e9e139d0984f/books/1
+####
+
+// Update a book (replace {id} with the actual book ID)
+PATCH http://localhost:8080/api/libraries/717a63ce-5428-44a9-89d8-e9e139d0984f/books/1
+Content-Type: application/json
+
+{
+  "title": "Tales of Mystery and Imagination (Updated Edition)",
+  "author": "Edgar Allan Poe",
+  "isbn": "978-0141036144"
+}
+####
+// DELETE a book (replace {id} with the actual book ID)
+DELETE http://localhost:8080/api/libraries/717a63ce-5428-44a9-89d8-e9e139d0984f/books/0d5d2207-fec5-4f74-a0e6-e28c09a0609f
+####

@@ -45,9 +45,13 @@ func main() {
 
 	// ADMIN
 	// API endpoint to reset all the system CAUTION!
-	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
+	mux.HandleFunc("POST /admin/reset", apiCfg.handlerMasterReset)
 
 	// USERS
+	// API endpoint to create a user
+	mux.HandleFunc("POST /api/users", apiCfg.handlerCreateUser)
+	// API endpoint to delete a user
+	mux.HandleFunc("DELETE /api/users/{userID}", apiCfg.handlerDeleteUser)
 
 	// LIBRARIES
 	// API endpoint to get create a libray

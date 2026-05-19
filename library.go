@@ -160,17 +160,3 @@ func (cfg *apiCfg) handlerDeleteLibrary(w http.ResponseWriter, r *http.Request) 
 
 	respondJson(w, http.StatusOK, "Library with id "+id+" successfuly deleted")
 }
-
-func (cfg *apiCfg) handlerReset(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
-	if cfg.platform != "dev" {
-		w.WriteHeader(http.StatusForbidden)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-	err := cfg.db.DeleteAllLibraries(r.Context())
-	if err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-}
