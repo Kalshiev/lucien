@@ -9,6 +9,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/Kalshiev/lucien/internal/auth"
 	"github.com/Kalshiev/lucien/internal/database"
 	"github.com/google/uuid"
 )
@@ -35,6 +36,19 @@ func (cfg *apiCfg) handlerCreateLibrary(w http.ResponseWriter, r *http.Request) 
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
+
+	reqToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	validatedUser, err := auth.ValidateJWT(reqToken, cfg.tokenSecret)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+	log.Println("Logged in user: ", validatedUser)
 
 	library, err := cfg.db.CreateLibrary(r.Context(), database.CreateLibraryParams{
 		Name:        params.Name,
@@ -129,6 +143,19 @@ func (cfg *apiCfg) handlerUpdateLibrary(w http.ResponseWriter, r *http.Request) 
 	}
 	log.Println(uuid)
 
+	reqToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	validatedUser, err := auth.ValidateJWT(reqToken, cfg.tokenSecret)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+	log.Println("Logged in user: ", validatedUser)
+
 	library, err := cfg.db.UpdateLibrary(r.Context(), database.UpdateLibraryParams{
 		ID:          uuid,
 		Name:        params.Name,
@@ -151,6 +178,19 @@ func (cfg *apiCfg) handlerDeleteLibrary(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	log.Println(uuid)
+
+	reqToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	validatedUser, err := auth.ValidateJWT(reqToken, cfg.tokenSecret)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+	log.Println("Logged in user: ", validatedUser)
 
 	err = cfg.db.DeleteLibrary(r.Context(), uuid)
 	if err != nil {

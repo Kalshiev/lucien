@@ -9,6 +9,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/Kalshiev/lucien/internal/auth"
 	"github.com/Kalshiev/lucien/internal/database"
 	"github.com/google/uuid"
 )
@@ -49,6 +50,19 @@ func (cfg *apiCfg) handlerCreateBookInLibrary(w http.ResponseWriter, r *http.Req
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
+
+	reqToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	validatedUser, err := auth.ValidateJWT(reqToken, cfg.tokenSecret)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+	log.Println("Logged in user: ", validatedUser)
 
 	var PublishedDate sql.NullTime
 
@@ -165,6 +179,19 @@ func (cfg *apiCfg) handlerGetAllBooksFromCollection(w http.ResponseWriter, r *ht
 	var books []database.Book
 	var err error
 
+	reqToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	validatedUser, err := auth.ValidateJWT(reqToken, cfg.tokenSecret)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+	log.Println("Logged in user: ", validatedUser)
+
 	id := r.PathValue("collectionID")
 	if id != "" {
 		collectionID, Parserr := uuid.Parse(id)
@@ -222,6 +249,19 @@ func (cfg *apiCfg) handlerUpdateBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	reqToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	validatedUser, err := auth.ValidateJWT(reqToken, cfg.tokenSecret)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+	log.Println("Logged in user: ", validatedUser)
+
 	var PublishedDate sql.NullTime
 
 	if params.PublishedDate.IsZero() {
@@ -268,6 +308,19 @@ func (cfg *apiCfg) handlerAddBookToCollection(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	reqToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	validatedUser, err := auth.ValidateJWT(reqToken, cfg.tokenSecret)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+	log.Println("Logged in user: ", validatedUser)
+
 	book, err := cfg.db.AddBookToCollection(r.Context(), database.AddBookToCollectionParams{
 		ID:           bookuuid,
 		CollectionID: uuid.NullUUID{UUID: coluuid, Valid: true},
@@ -290,6 +343,19 @@ func (cfg *apiCfg) handlerRemoveBookFromCollection(w http.ResponseWriter, r *htt
 		return
 	}
 
+	reqToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	validatedUser, err := auth.ValidateJWT(reqToken, cfg.tokenSecret)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+	log.Println("Logged in user: ", validatedUser)
+
 	book, err := cfg.db.RemoveBookFromCollection(r.Context(), bookuuid)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err.Error())
@@ -307,6 +373,19 @@ func (cfg *apiCfg) handlerDeleteBook(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
+
+	reqToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	validatedUser, err := auth.ValidateJWT(reqToken, cfg.tokenSecret)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+	log.Println("Logged in user: ", validatedUser)
 
 	err = cfg.db.DeleteBook(r.Context(), uuid)
 	if err != nil {

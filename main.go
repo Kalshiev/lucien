@@ -50,6 +50,10 @@ func main() {
 	// USERS
 	// API endpoint to create a user
 	mux.HandleFunc("POST /api/users", apiCfg.handlerCreateUser)
+	// API endpoint to login user
+	mux.HandleFunc("POST /api/login", apiCfg.handlerLoginUser)
+	// API endpoint to update user password
+	mux.HandleFunc("PATCH /api/users", apiCfg.handlerUpdateUser)
 	// API endpoint to delete a user
 	mux.HandleFunc("DELETE /api/users/{userID}", apiCfg.handlerDeleteUser)
 

@@ -9,6 +9,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/Kalshiev/lucien/internal/auth"
 	"github.com/Kalshiev/lucien/internal/database"
 	"github.com/google/uuid"
 )
@@ -45,6 +46,19 @@ func (cfg *apiCfg) handlerCreateCollection(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	reqToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	validatedUser, err := auth.ValidateJWT(reqToken, cfg.tokenSecret)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+	log.Println("Logged in user: ", validatedUser)
+
 	collection, err := cfg.db.CreateCollection(r.Context(), database.CreateCollectionParams{
 		Name:        params.Name,
 		Description: sql.NullString{String: params.Description, Valid: true},
@@ -74,6 +88,19 @@ func (cfg *apiCfg) handlerGetCollectionByID(w http.ResponseWriter, r *http.Reque
 		respondError(w, http.StatusBadRequest, err.Error())
 	}
 
+	reqToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	validatedUser, err := auth.ValidateJWT(reqToken, cfg.tokenSecret)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+	log.Println("Logged in user: ", validatedUser)
+
 	collection, err := cfg.db.GetCollectionByID(r.Context(), uuid)
 	if err != nil {
 		respondError(w, http.StatusNotFound, "Couldn't get collection by ID")
@@ -95,6 +122,19 @@ func (cfg *apiCfg) handlerGetCollectionByID(w http.ResponseWriter, r *http.Reque
 func (cfg *apiCfg) handlerGetAllCollectionsInLibrary(w http.ResponseWriter, r *http.Request) {
 	var collections []database.Collection
 	var err error
+
+	reqToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	validatedUser, err := auth.ValidateJWT(reqToken, cfg.tokenSecret)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+	log.Println("Logged in user: ", validatedUser)
 
 	id := r.PathValue("libraryID")
 	if id != "" {
@@ -153,6 +193,19 @@ func (cfg *apiCfg) handlerUpdateCollection(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	reqToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	validatedUser, err := auth.ValidateJWT(reqToken, cfg.tokenSecret)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+	log.Println("Logged in user: ", validatedUser)
+
 	collection, err := cfg.db.UpdateCollection(r.Context(), database.UpdateCollectionParams{
 		ID:          uuid,
 		Name:        params.Name,
@@ -174,6 +227,19 @@ func (cfg *apiCfg) handlerDeleteCollection(w http.ResponseWriter, r *http.Reques
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
+
+	reqToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	validatedUser, err := auth.ValidateJWT(reqToken, cfg.tokenSecret)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+	log.Println("Logged in user: ", validatedUser)
 
 	err = cfg.db.DeleteCollection(r.Context(), uuid)
 	if err != nil {

@@ -42,6 +42,15 @@ type Library struct {
 	CollectionCount int32
 }
 
+type RefreshToken struct {
+	Token     string
+	UserID    uuid.UUID
+	ExpiresAt time.Time
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	RevokedAt sql.NullTime
+}
+
 type User struct {
 	ID           uuid.UUID
 	Username     string
