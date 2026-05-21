@@ -103,6 +103,12 @@ func main() {
 	// API endpoint to delete a book from a library
 	mux.HandleFunc("DELETE /api/libraries/{libraryID}/books/{bookID}", apiCfg.handlerDeleteBook)
 
+	// TOKENS
+	// API endpoint to revoke tokens
+	mux.HandleFunc("POST /api/revoke", apiCfg.handlerRevokeRefreshToken)
+	// API endpoint to refresh tokens
+	mux.HandleFunc("POST /api/refresh", apiCfg.handlerRefresh)
+
 	log.Printf("Serving on port: %s", port)
 	log.Fatal(srv.ListenAndServe())
 }
