@@ -21,6 +21,8 @@ type Book struct {
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	CollectionID  uuid.NullUUID
+	IsAvailable   bool
+	Borrower      sql.NullString
 }
 
 type Collection struct {
@@ -40,6 +42,15 @@ type Library struct {
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	CollectionCount int32
+}
+
+type Loan struct {
+	ID         uuid.UUID
+	Lender     uuid.UUID
+	Borrower   string
+	Book       uuid.UUID
+	LentAt     time.Time
+	ReturnedAt sql.NullTime
 }
 
 type RefreshToken struct {

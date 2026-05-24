@@ -51,7 +51,9 @@ SET title = $2,
     author = $3,
     published_date = $4,
     isbn = $5,
-    updated_at = NOW()
+    updated_at = NOW(),
+    is_available = $6,
+    borrower = $7
 WHERE id = $1
 RETURNING *;
 

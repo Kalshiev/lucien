@@ -238,6 +238,8 @@ func (cfg *apiCfg) handlerUpdateBook(w http.ResponseWriter, r *http.Request) {
 		Isbn          string    `json:"isbn"`
 		LibraryID     uuid.UUID `json:"library_id"`
 		CollectionID  uuid.UUID `json:"collection_id"`
+		IsAvailable   bool      `json:"is_available"`
+		Borrower      string    `json:"borrower"`
 	}
 
 	decoder := json.NewDecoder(r.Body)
@@ -278,11 +280,21 @@ func (cfg *apiCfg) handlerUpdateBook(w http.ResponseWriter, r *http.Request) {
 		Isbn = sql.NullString{String: params.Isbn, Valid: true}
 	}
 
+	var Borrower sql.NullString
+
+	if params.Borrower == "" {
+		Borrower = sql.NullString{String: params.Borrower, Valid: true}
+	} else {
+		Borrower = sql.NullString{Valid: false}
+	}
+
 	book, err := cfg.db.UpdateBook(r.Context(), database.UpdateBookParams{
 		Title:         params.Title,
 		Author:        params.Author,
 		PublishedDate: PublishedDate,
 		Isbn:          Isbn,
+		IsAvailable:   params.IsAvailable,
+		Borrower:      Borrower,
 	})
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err.Error())

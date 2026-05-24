@@ -1,6 +1,7 @@
 // Create a new book
-POST http://localhost:8080/api/libraries/717a63ce-5428-44a9-89d8-e9e139d0984f/books
+POST http://localhost:8080/api/libraries/f5b8641a-ee91-4294-bda0-bc6b934f24d5/books
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJsdWNpZW4tYWNjZXNzIiwic3ViIjoiMmY5YzU1NjctNjI5Ny00MDEwLWI5N2QtNTBlYWU3ZDk2MWFkIiwiZXhwIjoxNzc5NTkwNTU5LCJpYXQiOjE3Nzk1ODY5NTl9.hAPgGCI3OqtCjyjjEqOAhf8tfKtEItrAvgMZLQa4HmE
 
 {
   "title": "Tales of Mystery and Imagination",

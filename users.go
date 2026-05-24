@@ -127,6 +127,7 @@ func (cfg *apiCfg) handlerLoginUser(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+	log.Println("Token: ", token)
 
 	refreshToken, err := cfg.db.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
 		Token:     auth.MakeRefreshToken(),

@@ -17,7 +17,7 @@ UPDATE books
 SET collection_id = $2,
     updated_at = NOW()
 WHERE id = $1
-RETURNING id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id
+RETURNING id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id, is_available, borrower
 `
 
 type AddBookToCollectionParams struct {
@@ -38,6 +38,8 @@ func (q *Queries) AddBookToCollection(ctx context.Context, arg AddBookToCollecti
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.CollectionID,
+		&i.IsAvailable,
+		&i.Borrower,
 	)
 	return i, err
 }
@@ -55,7 +57,7 @@ VALUES (
     NOW(),
     $6
 )
-RETURNING id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id
+RETURNING id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id, is_available, borrower
 `
 
 type CreateBookParams struct {
@@ -87,6 +89,8 @@ func (q *Queries) CreateBook(ctx context.Context, arg CreateBookParams) (Book, e
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.CollectionID,
+		&i.IsAvailable,
+		&i.Borrower,
 	)
 	return i, err
 }
@@ -102,7 +106,7 @@ func (q *Queries) DeleteBook(ctx context.Context, id uuid.UUID) error {
 }
 
 const getAllBooks = `-- name: GetAllBooks :many
-SELECT id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id FROM books
+SELECT id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id, is_available, borrower FROM books
 ORDER BY created_at DESC
 `
 
@@ -125,6 +129,8 @@ func (q *Queries) GetAllBooks(ctx context.Context) ([]Book, error) {
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.CollectionID,
+			&i.IsAvailable,
+			&i.Borrower,
 		); err != nil {
 			return nil, err
 		}
@@ -140,7 +146,7 @@ func (q *Queries) GetAllBooks(ctx context.Context) ([]Book, error) {
 }
 
 const getAllBooksFromCollection = `-- name: GetAllBooksFromCollection :many
-SELECT id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id FROM books
+SELECT id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id, is_available, borrower FROM books
 WHERE collection_id = $1
 ORDER BY created_at DESC
 `
@@ -164,6 +170,8 @@ func (q *Queries) GetAllBooksFromCollection(ctx context.Context, collectionID uu
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.CollectionID,
+			&i.IsAvailable,
+			&i.Borrower,
 		); err != nil {
 			return nil, err
 		}
@@ -179,7 +187,7 @@ func (q *Queries) GetAllBooksFromCollection(ctx context.Context, collectionID uu
 }
 
 const getAllBooksFromLibrary = `-- name: GetAllBooksFromLibrary :many
-SELECT id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id FROM books
+SELECT id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id, is_available, borrower FROM books
 WHERE library_id = $1
 ORDER BY created_at DESC
 `
@@ -203,6 +211,8 @@ func (q *Queries) GetAllBooksFromLibrary(ctx context.Context, libraryID uuid.UUI
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.CollectionID,
+			&i.IsAvailable,
+			&i.Borrower,
 		); err != nil {
 			return nil, err
 		}
@@ -218,7 +228,7 @@ func (q *Queries) GetAllBooksFromLibrary(ctx context.Context, libraryID uuid.UUI
 }
 
 const getBookByID = `-- name: GetBookByID :one
-SELECT id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id FROM books
+SELECT id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id, is_available, borrower FROM books
 WHERE id = $1
 `
 
@@ -235,6 +245,8 @@ func (q *Queries) GetBookByID(ctx context.Context, id uuid.UUID) (Book, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.CollectionID,
+		&i.IsAvailable,
+		&i.Borrower,
 	)
 	return i, err
 }
@@ -244,7 +256,7 @@ UPDATE books
 SET collection_id = NULL,
     updated_at = NOW()
 WHERE id = $1
-RETURNING id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id
+RETURNING id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id, is_available, borrower
 `
 
 func (q *Queries) RemoveBookFromCollection(ctx context.Context, id uuid.UUID) (Book, error) {
@@ -260,6 +272,8 @@ func (q *Queries) RemoveBookFromCollection(ctx context.Context, id uuid.UUID) (B
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.CollectionID,
+		&i.IsAvailable,
+		&i.Borrower,
 	)
 	return i, err
 }
@@ -270,9 +284,11 @@ SET title = $2,
     author = $3,
     published_date = $4,
     isbn = $5,
-    updated_at = NOW()
+    updated_at = NOW(),
+    is_available = $6,
+    borrower = $7
 WHERE id = $1
-RETURNING id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id
+RETURNING id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id, is_available, borrower
 `
 
 type UpdateBookParams struct {
@@ -281,6 +297,8 @@ type UpdateBookParams struct {
 	Author        string
 	PublishedDate sql.NullTime
 	Isbn          sql.NullString
+	IsAvailable   bool
+	Borrower      sql.NullString
 }
 
 func (q *Queries) UpdateBook(ctx context.Context, arg UpdateBookParams) (Book, error) {
@@ -290,6 +308,8 @@ func (q *Queries) UpdateBook(ctx context.Context, arg UpdateBookParams) (Book, e
 		arg.Author,
 		arg.PublishedDate,
 		arg.Isbn,
+		arg.IsAvailable,
+		arg.Borrower,
 	)
 	var i Book
 	err := row.Scan(
@@ -302,6 +322,8 @@ func (q *Queries) UpdateBook(ctx context.Context, arg UpdateBookParams) (Book, e
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.CollectionID,
+		&i.IsAvailable,
+		&i.Borrower,
 	)
 	return i, err
 }

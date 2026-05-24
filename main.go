@@ -49,9 +49,9 @@ func main() {
 
 	// USERS
 	// API endpoint to create a user
-	mux.HandleFunc("POST /api/users", apiCfg.handlerCreateUser)
+	mux.HandleFunc("POST /api/auth/register", apiCfg.handlerCreateUser)
 	// API endpoint to login user
-	mux.HandleFunc("POST /api/login", apiCfg.handlerLoginUser)
+	mux.HandleFunc("POST /api/auth/login", apiCfg.handlerLoginUser)
 	// API endpoint to update user password
 	mux.HandleFunc("PATCH /api/users", apiCfg.handlerUpdateUser)
 	// API endpoint to delete a user
@@ -102,6 +102,14 @@ func main() {
 	mux.HandleFunc("DELETE /api/libraries/{libraryID}/collections/{collectionID}/books/{bookID}", apiCfg.handlerRemoveBookFromCollection)
 	// API endpoint to delete a book from a library
 	mux.HandleFunc("DELETE /api/libraries/{libraryID}/books/{bookID}", apiCfg.handlerDeleteBook)
+
+	// LOANS
+	// API endpoint to lend a book
+	mux.HandleFunc("POST /api/loans/{borrowerName}/{bookID}", apiCfg.handlerLendBook)
+	// API endpoint to return a book
+	mux.HandleFunc("PATCH /api/loans/{bookID}", apiCfg.handlerReturnBook)
+	// API endpoint to get the loan history of a book
+	mux.HandleFunc("GET /api/loans/{bookID}", apiCfg.handlerGetLoanHistory)
 
 	// TOKENS
 	// API endpoint to revoke tokens
