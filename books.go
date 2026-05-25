@@ -283,9 +283,9 @@ func (cfg *apiCfg) handlerUpdateBook(w http.ResponseWriter, r *http.Request) {
 	var Borrower sql.NullString
 
 	if params.Borrower == "" {
-		Borrower = sql.NullString{String: params.Borrower, Valid: true}
-	} else {
 		Borrower = sql.NullString{Valid: false}
+	} else {
+		Borrower = sql.NullString{String: params.Borrower, Valid: true}
 	}
 
 	book, err := cfg.db.UpdateBook(r.Context(), database.UpdateBookParams{
