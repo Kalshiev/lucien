@@ -54,8 +54,8 @@ func main() {
 	mux.HandleFunc("POST /api/auth/login", apiCfg.handlerLoginUser)
 	// API endpoint to update user password
 	mux.HandleFunc("PATCH /api/users", apiCfg.handlerUpdateUser)
-	// API endpoint to delete a user
-	mux.HandleFunc("DELETE /api/users/{userID}", apiCfg.handlerDeleteUser)
+	// API endpoint to delete the authenticated user
+	mux.HandleFunc("DELETE /api/users", apiCfg.handlerDeleteAuthUser)
 
 	// LIBRARIES
 	// API endpoint to get create a libray

@@ -134,6 +134,10 @@ func (cfg *apiCfg) handlerLoginUser(w http.ResponseWriter, r *http.Request) {
 		UserID:    user.ID,
 		ExpiresAt: time.Now().Add((time.Duration(24) * time.Hour) * 60),
 	})
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	respondJson(w, http.StatusOK, User{
 		ID:           user.ID,
@@ -199,7 +203,7 @@ func (cfg *apiCfg) handlerUpdateUser(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (cfg *apiCfg) handlerDeleteUser(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiCfg) handlerDeleteAuthUser(w http.ResponseWriter, r *http.Request) {
 	reqToken, err := auth.GetBearerToken(r.Header)
 	if err != nil {
 		respondError(w, http.StatusUnauthorized, err.Error())
