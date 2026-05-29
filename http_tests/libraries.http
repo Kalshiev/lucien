@@ -8,9 +8,6 @@ Content-Type: application/json
 }
 
 ####
-// Get all libraries
-GET http://localhost:8080/api/libraries
-####
 // Get a specific library by ID (replace {id} with the actual library ID)
 GET http://localhost:8080/api/libraries/717a63ce-5428-44a9-89d8-e9e139d0984f
 ####

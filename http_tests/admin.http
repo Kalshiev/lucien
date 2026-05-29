@@ -1,3 +1,5 @@
 // RESET SYSTEM (delete all libraries)
 POST http://localhost:8080/admin/reset
 ####
+// Get all libraries
+GET http://localhost:8080/admin/libraries

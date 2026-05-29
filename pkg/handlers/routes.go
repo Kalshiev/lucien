@@ -26,6 +26,8 @@ func SetupRoutes(a *app.App) chi.Router {
 	// Admin routes (no auth required, but restricted by platform check)
 	r.Route("/admin", func(r chi.Router) {
 		r.Post("/reset", MasterReset(a))
+		r.Get("/libraries", GetAllLibraries(a))
+		r.Delete("/libraries", DeleteAllLibraries(a))
 	})
 
 	// Auth routes (no JWT required)
@@ -47,7 +49,6 @@ func SetupRoutes(a *app.App) chi.Router {
 		// Library endpoints
 		r.Route("/libraries", func(r chi.Router) {
 			r.Post("/", CreateLibrary(a))
-			r.Get("/", GetAllLibraries(a))
 			r.Get("/{libraryID}", GetLibraryByID(a))
 			r.Patch("/{libraryID}", UpdateLibrary(a))
 			r.Delete("/{libraryID}", DeleteLibrary(a))
