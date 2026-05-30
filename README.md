@@ -8,6 +8,7 @@ Lucien is a **RESTful API** for managing personal libraries — books, collectio
 
 ## Table of Contents
 
+- [Motivation](#motivation)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Architecture](#architecture)
@@ -25,6 +26,16 @@ Lucien is a **RESTful API** for managing personal libraries — books, collectio
 - [HTTP Tests](#http-tests)
 - [What I Learned](#what-i-learned)
 - [License](#license)
+
+---
+
+## Motivation
+
+- Have you ever lost or misplaced a book from your personal library?
+- Have you ever forgotten to whom you had lent a book?
+- Does current book management solutions and services seem too serious for your fantasy collection?
+
+Lucien offers a themed personal library management solution, lets you remember the location of your books and helps you remember who borrows your books.
 
 ---
 
