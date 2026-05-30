@@ -84,6 +84,7 @@ func SetupRoutes(a *app.App) chi.Router {
 			r.Post("/{borrowerName}/{bookID}", LendBook(a))
 			r.Patch("/{bookID}", ReturnBook(a))
 			r.Get("/{bookID}", GetLoanHistory(a))
+			r.Get("/", GetActiveLoans(a))
 		})
 
 		// Token management endpoints

@@ -1,11 +1,12 @@
 -- name: CreateLibrary :one
-INSERT INTO library (id, name, description, created_at, updated_at)
+INSERT INTO library (id, name, description, created_at, updated_at, user_id)
 VALUES (
     gen_random_uuid(),
     $1,
     $2,
     NOW(),
-    NOW()
+    NOW(),
+    $3
 )
 RETURNING *;
 

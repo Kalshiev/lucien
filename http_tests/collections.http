@@ -1,6 +1,7 @@
 // Create a new collection
-POST http://localhost:8080/api/libraries/717a63ce-5428-44a9-89d8-e9e139d0984f/collections
+POST http://localhost:8080/api/libraries/d152f19f-1fd9-455e-83c8-3ef71fefe18a/collections
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJsdWNpZW4tYWNjZXNzIiwic3ViIjoiMjVmN2Y0N2MtOWNjZS00MDIxLTk4YjQtYjJiMWJiZGQyYzgyIiwiZXhwIjoxNzgwMTcxMTk2LCJpYXQiOjE3ODAxNjc1OTZ9.k-6qrLDo1yUk4KTsB1GoMeBUbGc8O0Ntyg1GMMF_r-s
 
 {
   "name": "Philosophy Books",
@@ -8,13 +9,17 @@ Content-Type: application/json
 }
 ####
 // Get all collections in a library
-GET http://localhost:8080/api/libraries/717a63ce-5428-44a9-89d8-e9e139d0984f/collections
+GET http://localhost:8080/api/libraries/d152f19f-1fd9-455e-83c8-3ef71fefe18a/collections
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJsdWNpZW4tYWNjZXNzIiwic3ViIjoiMjVmN2Y0N2MtOWNjZS00MDIxLTk4YjQtYjJiMWJiZGQyYzgyIiwiZXhwIjoxNzgwMTcxMTk2LCJpYXQiOjE3ODAxNjc1OTZ9.k-6qrLDo1yUk4KTsB1GoMeBUbGc8O0Ntyg1GMMF_r-s
+
 ####
 // Get a specific collection by ID
-GET http://localhost:8080/api/libraries/717a63ce-5428-44a9-89d8-e9e139d0984f/collections/1
+GET http://localhost:8080/api/libraries/d152f19f-1fd9-455e-83c8-3ef71fefe18a/collections/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJsdWNpZW4tYWNjZXNzIiwic3ViIjoiMjVmN2Y0N2MtOWNjZS00MDIxLTk4YjQtYjJiMWJiZGQyYzgyIiwiZXhwIjoxNzgwMTTcxMTk2LCJpYXQiOjE3ODAxNjc1OTZ9.k-6qrLDo1yUk4KTsB1GoMeBUbGc8O0Ntyg1GMMF_r-s
+
 ####
 // Update a collection
-PUT http://localhost:8080/api/libraries/717a63ce-5428-44a9-89d8-e9e139d0984f/collections/1
+PUT http://localhost:8080/api/libraries/d152f19f-1fd9-455e-83c8-3ef71fefe18a/collections/1
 Content-Type: application/json
 
 {
@@ -23,10 +28,14 @@ Content-Type: application/json
 }
 ####
 // Delete a collection
-DELETE http://localhost:8080/api/libraries/717a63ce-5428-44a9-89d8-e9e139d0984f/collections/1
+DELETE http://localhost:8080/api/libraries/d152f19f-1fd9-455e-83c8-3ef71fefe18a/collections/1
 ####
 // Get all books in a collection
-GET http://localhost:8080/api/libraries/717a63ce-5428-44a9-89d8-e9e139d0984f/collections/ce4ae9d7-8982-4c4f-a5f5-b8cae22ad867/books
+GET http://localhost:8080/api/libraries/d152f19f-1fd9-455e-83c8-3ef71fefe18a/collections/9438b175-c957-44b9-90f0-f5aadb3489e3/books
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJsdWNpZW4tYWNjZXNzIiwic3ViIjoiMjVmN2Y0N2MtOWNjZS00MDIxLTk4YjQtYjJiMWJiZGQyYzgyIiwiZXhwIjoxNzgwMTcxMTk2LCJpYXQiOjE3ODAxNjc1OTZ9.k-6qrLDo1yUk4KTsB1GoMeBUbGc8O0Ntyg1GMMF_r-s
+
 ####
 // Add a book to a collection
-PATCH http://localhost:8080/api/libraries/717a63ce-5428-44a9-89d8-e9e139d0984f/collections/ce4ae9d7-8982-4c4f-a5f5-b8cae22ad867/books/0d5d2207-fec5-4f74-a0e6-e28c09a0609f
+PATCH http://localhost:8080/api/libraries/d152f19f-1fd9-455e-83c8-3ef71fefe18a/collections/9438b175-c957-44b9-90f0-f5aadb3489e3/books/3c709d3b-68a1-4e79-b19b-88c575a4edb0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJsdWNpZW4tYWNjZXNzIiwic3ViIjoiMjVmN2Y0N2MtOWNjZS00MDIxLTk4YjQtYjJiMWJiZGQyYzgyIiwiZXhwIjoxNzgwMTcxMTk2LCJpYXQiOjE3ODAxNjc1OTZ9.k-6qrLDo1yUk4KTsB1GoMeBUbGc8O0Ntyg1GMMF_r-s
+####

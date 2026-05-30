@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -29,30 +28,15 @@ func LendBook(a *app.App) http.HandlerFunc {
 		}
 
 		validatedUser := middleware.GetUserID(r)
-		parsedUserID, err := uuid.Parse(validatedUser)
-		if err != nil {
-			rest.RespondError(w, http.StatusBadRequest, "Invalid user ID")
-			return
-		}
 
 		loan, err := a.DB.CreateLoan(r.Context(), database.CreateLoanParams{
 			ID:       uuid.New(),
-			Lender:   parsedUserID,
+			Lender:   validatedUser,
 			Borrower: borrowerName,
 			Book:     bookUUID,
 		})
 		if err != nil {
 			fmt.Println("Loan failed: ", err)
-			rest.RespondError(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-
-		_, err = a.DB.UpdateBook(r.Context(), database.UpdateBookParams{
-			IsAvailable: false,
-			Borrower:    sql.NullString{String: borrowerName, Valid: true},
-		})
-		if err != nil {
-			fmt.Println("Updating Book Status Failed: ", err)
 			rest.RespondError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
@@ -81,15 +65,6 @@ func ReturnBook(a *app.App) http.HandlerFunc {
 			return
 		}
 		fmt.Println("Loan record updated: ", loanRecord)
-
-		_, err = a.DB.UpdateBook(r.Context(), database.UpdateBookParams{
-			IsAvailable: true,
-			Borrower:    sql.NullString{Valid: false},
-		})
-		if err != nil {
-			rest.RespondError(w, http.StatusInternalServerError, err.Error())
-			return
-		}
 
 		rest.RespondJSON(w, http.StatusOK, loanRecord)
 	}
@@ -131,5 +106,37 @@ func GetLoanHistory(a *app.App) http.HandlerFunc {
 		}
 
 		rest.RespondJSON(w, http.StatusOK, response)
+	}
+}
+
+func GetActiveLoans(a *app.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		validatedUser := middleware.GetUserID(r)
+		log.Println("Logged in user: ", validatedUser)
+
+		activeLoans, err := a.DB.GetActiveLoans(r.Context())
+		if err != nil {
+			rest.RespondError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		response := make([]models.LoanResponse, len(activeLoans))
+		for idx, loan := range activeLoans {
+			response[idx] = models.LoanResponse{
+				Id:         loan.ID,
+				Lender:     loan.Lender,
+				Borrower:   loan.Borrower,
+				Book:       loan.Book,
+				LentAt:     loan.LentAt,
+				ReturnedAt: loan.ReturnedAt.Time,
+			}
+		}
+
+		if r.URL.Query().Get("sort") == "desc" {
+			sort.Slice(response, func(i, j int) bool { return response[i].LentAt.After(response[j].LentAt) })
+		}
+
+		rest.RespondJSON(w, http.StatusOK, response)
+
 	}
 }

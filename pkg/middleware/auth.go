@@ -6,6 +6,7 @@ import (
 
 	"github.com/Kalshiev/lucien/internal/auth"
 	"github.com/Kalshiev/lucien/pkg/rest"
+	"github.com/google/uuid"
 )
 
 type contextKey string
@@ -36,10 +37,10 @@ func AuthRequired(tokenSecret string) func(http.Handler) http.Handler {
 }
 
 // GetUserID retrieves the user ID from request context
-func GetUserID(r *http.Request) string {
+func GetUserID(r *http.Request) uuid.UUID {
 	userID := r.Context().Value(UserIDContextKey)
 	if userID == nil {
-		return ""
+		return uuid.Nil
 	}
-	return userID.(string)
+	return userID.(uuid.UUID)
 }

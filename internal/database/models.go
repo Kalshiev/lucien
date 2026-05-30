@@ -42,6 +42,7 @@ type Library struct {
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	CollectionCount int32
+	UserID          uuid.UUID
 }
 
 type Loan struct {
@@ -69,5 +70,4 @@ type User struct {
 	PasswordHash string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
-	LibraryID    uuid.UUID
 }

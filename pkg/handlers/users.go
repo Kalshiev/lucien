@@ -38,21 +38,10 @@ func Register(a *app.App) http.HandlerFunc {
 			return
 		}
 
-		library, err := a.DB.CreateLibrary(r.Context(), database.CreateLibraryParams{
-			Name:        "My Library",
-			Description: sql.NullString{Valid: false},
-		})
-		if err != nil {
-			log.Printf("Error creating default library for %s", req.Username)
-			rest.RespondError(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-
 		user, err := a.DB.CreateUser(r.Context(), database.CreateUserParams{
 			Username:     req.Username,
 			Email:        req.Email,
 			PasswordHash: hash,
-			LibraryID:    library.ID,
 		})
 		if err != nil {
 			log.Printf("Error creating user %s", req.Username)
@@ -60,14 +49,24 @@ func Register(a *app.App) http.HandlerFunc {
 			return
 		}
 
-		log.Printf("User %s and library %s created", user.Username, user.LibraryID)
+		library, err := a.DB.CreateLibrary(r.Context(), database.CreateLibraryParams{
+			Name:        "My Library",
+			Description: sql.NullString{Valid: false},
+			UserID:      user.ID,
+		})
+		if err != nil {
+			log.Printf("Error creating default library for %s", req.Username)
+			rest.RespondError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		log.Printf("User %s and library %s created", user.Username, library.ID)
 		rest.RespondJSON(w, http.StatusCreated, models.UserResponse{
 			ID:        user.ID,
 			Username:  user.Username,
 			Email:     user.Email,
 			CreatedAt: user.CreatedAt,
 			UpdatedAt: user.UpdatedAt,
-			LibraryID: user.LibraryID,
 		})
 	}
 }
@@ -153,14 +152,8 @@ func UpdatePassword(a *app.App) http.HandlerFunc {
 			return
 		}
 
-		parsedUserID, err := rest.ParseUUID(userID)
-		if err != nil {
-			rest.RespondError(w, http.StatusBadRequest, "Invalid user ID")
-			return
-		}
-
 		updatedUser, err := a.DB.UpdateUserPassword(r.Context(), database.UpdateUserPasswordParams{
-			ID:           parsedUserID,
+			ID:           userID,
 			PasswordHash: hashedPass,
 		})
 		if err != nil {
@@ -182,19 +175,14 @@ func DeleteUser(a *app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID := middleware.GetUserID(r)
 
-		parsedUserID, err := rest.ParseUUID(userID)
-		if err != nil {
-			rest.RespondError(w, http.StatusBadRequest, "Invalid user ID")
-			return
-		}
-		log.Println("Logged in user: ", parsedUserID)
+		log.Println("Logged in user: ", userID)
 
-		if err := a.DB.DeleteUser(r.Context(), parsedUserID); err != nil {
+		if err := a.DB.DeleteUser(r.Context(), userID); err != nil {
 			rest.RespondError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		log.Printf("User with id %s successfully deleted", parsedUserID)
+		log.Printf("User with id %s successfully deleted", userID)
 		w.WriteHeader(http.StatusNoContent)
 	}
 }

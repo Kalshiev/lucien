@@ -31,6 +31,7 @@ func CreateLibrary(a *app.App) http.HandlerFunc {
 		library, err := a.DB.CreateLibrary(r.Context(), database.CreateLibraryParams{
 			Name:        params.Name,
 			Description: sql.NullString{String: params.Description, Valid: true},
+			UserID:      validatedUser,
 		})
 		if err != nil {
 			fmt.Println("DB connection failed")
@@ -44,6 +45,7 @@ func CreateLibrary(a *app.App) http.HandlerFunc {
 			Description: library.Description.String,
 			CreatedAt:   library.CreatedAt,
 			UpdatedAt:   library.UpdatedAt,
+			UserID:      library.UserID,
 		})
 		log.Printf("%s created with id %s", library.Name, library.ID)
 	}

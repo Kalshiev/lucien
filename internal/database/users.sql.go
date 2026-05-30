@@ -12,33 +12,26 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (id, username, email, password_hash, created_at, updated_at, library_id)
+INSERT INTO users (id, username, email, password_hash, created_at, updated_at)
 VALUES (
     gen_random_uuid(),
     $1,
     $2,
     $3,
     NOW(),
-    NOW(),
-    $4
+    NOW()
 )
-RETURNING id, username, email, password_hash, created_at, updated_at, library_id
+RETURNING id, username, email, password_hash, created_at, updated_at
 `
 
 type CreateUserParams struct {
 	Username     string
 	Email        string
 	PasswordHash string
-	LibraryID    uuid.UUID
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser,
-		arg.Username,
-		arg.Email,
-		arg.PasswordHash,
-		arg.LibraryID,
-	)
+	row := q.db.QueryRowContext(ctx, createUser, arg.Username, arg.Email, arg.PasswordHash)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -47,7 +40,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.PasswordHash,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.LibraryID,
 	)
 	return i, err
 }
@@ -71,7 +63,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, username, email, password_hash, created_at, updated_at, library_id FROM users WHERE email = $1
+SELECT id, username, email, password_hash, created_at, updated_at FROM users WHERE email = $1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
@@ -84,13 +76,12 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.PasswordHash,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.LibraryID,
 	)
 	return i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, username, email, password_hash, created_at, updated_at, library_id FROM users WHERE id = $1
+SELECT id, username, email, password_hash, created_at, updated_at FROM users WHERE id = $1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
@@ -103,7 +94,6 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.PasswordHash,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.LibraryID,
 	)
 	return i, err
 }
@@ -112,7 +102,7 @@ const updateUserPassword = `-- name: UpdateUserPassword :one
 UPDATE users
 SET password_hash = $1, updated_at = NOW()
 WHERE id = $2
-RETURNING id, username, email, password_hash, created_at, updated_at, library_id
+RETURNING id, username, email, password_hash, created_at, updated_at
 `
 
 type UpdateUserPasswordParams struct {
@@ -130,7 +120,6 @@ func (q *Queries) UpdateUserPassword(ctx context.Context, arg UpdateUserPassword
 		&i.PasswordHash,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.LibraryID,
 	)
 	return i, err
 }

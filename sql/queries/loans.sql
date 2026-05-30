@@ -20,3 +20,9 @@ SELECT *
 FROM loans
 WHERE book = $1
 ORDER BY lent_at DESC;
+
+-- name: GetActiveLoans :many
+SELECT *
+FROM loans
+WHERE returned_at IS NULL
+ORDER BY lent_at DESC;

@@ -1,0 +1,11 @@
+// Create a new loan
+POST http://localhost:8080/api/loans/Freddy/4b6c9f89-5534-4ed0-b46c-fd46e4c4f91c
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJsdWNpZW4tYWNjZXNzIiwic3ViIjoiM2Y0MzRmZDQtNDY3NS00NGViLWIzNmYtZTE1ZTNhZGUxYWEyIiwiZXhwIjoxNzgwMTcyMTUzLCJpYXQiOjE3ODAxNjg1NTN9.GC4qj0rasZamLm_OwG-Ht8XwFWF4ITq9JC6t_1cizKc
+####
+// Get all loans for a user
+GET http://localhost:8080/api/loans/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJsdWNpZW4tYWNjZXNzIiwic3ViIjoiM2Y0MzRmZDQtNDY3NS00NGViLWIzNmYtZTE1ZTNhZGUxYWEyIiwiZXhwIjoxNzgwMTcyMTUzLCJpYXQiOjE3ODAxNjg1NTN9.GC4qj0rasZamLm_OwG-Ht8XwFWF4ITq9JC6t_1cizKc
+####
+// Return a loan (replace {id} with the actual loan ID)
+PATCH http://localhost:8080/api/loans/4b6c9f89-5534-4ed0-b46c-fd46e4c4f91c
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJsdWNpZW4tYWNjZXNzIiwic3ViIjoiM2Y0MzRmZDQtNDY3NS00NGViLWIzNmYtZTE1ZTNhZGUxYWEyIiwiZXhwIjoxNzgwMTcyMTUzLCJpYXQiOjE3ODAxNjg1NTN9.GC4qj0rasZamLm_OwG-Ht8XwFWF4ITq9JC6t_1cizKc

@@ -284,9 +284,7 @@ SET title = $2,
     author = $3,
     published_date = $4,
     isbn = $5,
-    updated_at = NOW(),
-    is_available = $6,
-    borrower = $7
+    updated_at = NOW()
 WHERE id = $1
 RETURNING id, title, author, published_date, isbn, library_id, created_at, updated_at, collection_id, is_available, borrower
 `
@@ -297,8 +295,6 @@ type UpdateBookParams struct {
 	Author        string
 	PublishedDate sql.NullTime
 	Isbn          sql.NullString
-	IsAvailable   bool
-	Borrower      sql.NullString
 }
 
 func (q *Queries) UpdateBook(ctx context.Context, arg UpdateBookParams) (Book, error) {
@@ -308,8 +304,6 @@ func (q *Queries) UpdateBook(ctx context.Context, arg UpdateBookParams) (Book, e
 		arg.Author,
 		arg.PublishedDate,
 		arg.Isbn,
-		arg.IsAvailable,
-		arg.Borrower,
 	)
 	var i Book
 	err := row.Scan(

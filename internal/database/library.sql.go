@@ -13,24 +13,26 @@ import (
 )
 
 const createLibrary = `-- name: CreateLibrary :one
-INSERT INTO library (id, name, description, created_at, updated_at)
+INSERT INTO library (id, name, description, created_at, updated_at, user_id)
 VALUES (
     gen_random_uuid(),
     $1,
     $2,
     NOW(),
-    NOW()
+    NOW(),
+    $3
 )
-RETURNING id, name, description, created_at, updated_at, collection_count
+RETURNING id, name, description, created_at, updated_at, collection_count, user_id
 `
 
 type CreateLibraryParams struct {
 	Name        string
 	Description sql.NullString
+	UserID      uuid.UUID
 }
 
 func (q *Queries) CreateLibrary(ctx context.Context, arg CreateLibraryParams) (Library, error) {
-	row := q.db.QueryRowContext(ctx, createLibrary, arg.Name, arg.Description)
+	row := q.db.QueryRowContext(ctx, createLibrary, arg.Name, arg.Description, arg.UserID)
 	var i Library
 	err := row.Scan(
 		&i.ID,
@@ -39,6 +41,7 @@ func (q *Queries) CreateLibrary(ctx context.Context, arg CreateLibraryParams) (L
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.CollectionCount,
+		&i.UserID,
 	)
 	return i, err
 }
@@ -63,7 +66,7 @@ func (q *Queries) DeleteLibrary(ctx context.Context, id uuid.UUID) error {
 }
 
 const getAllLibraries = `-- name: GetAllLibraries :many
-SELECT id, name, description, created_at, updated_at, collection_count FROM library
+SELECT id, name, description, created_at, updated_at, collection_count, user_id FROM library
 ORDER BY created_at DESC
 `
 
@@ -83,6 +86,7 @@ func (q *Queries) GetAllLibraries(ctx context.Context) ([]Library, error) {
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.CollectionCount,
+			&i.UserID,
 		); err != nil {
 			return nil, err
 		}
@@ -98,7 +102,7 @@ func (q *Queries) GetAllLibraries(ctx context.Context) ([]Library, error) {
 }
 
 const getLibraryByID = `-- name: GetLibraryByID :one
-SELECT id, name, description, created_at, updated_at, collection_count FROM library
+SELECT id, name, description, created_at, updated_at, collection_count, user_id FROM library
 WHERE id = $1
 `
 
@@ -112,6 +116,7 @@ func (q *Queries) GetLibraryByID(ctx context.Context, id uuid.UUID) (Library, er
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.CollectionCount,
+		&i.UserID,
 	)
 	return i, err
 }
@@ -122,7 +127,7 @@ SET name = $2,
     description = $3,
     updated_at = NOW()
 WHERE id = $1
-RETURNING id, name, description, created_at, updated_at, collection_count
+RETURNING id, name, description, created_at, updated_at, collection_count, user_id
 `
 
 type UpdateLibraryParams struct {
@@ -141,6 +146,7 @@ func (q *Queries) UpdateLibrary(ctx context.Context, arg UpdateLibraryParams) (L
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.CollectionCount,
+		&i.UserID,
 	)
 	return i, err
 }

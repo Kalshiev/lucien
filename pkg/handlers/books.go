@@ -101,6 +101,8 @@ func GetBookByID(a *app.App) http.HandlerFunc {
 			CollectionID:  book.CollectionID.UUID,
 			CreatedAt:     book.CreatedAt,
 			UpdatedAt:     book.UpdatedAt,
+			IsAvailable:   book.IsAvailable,
+			Borrower:      book.Borrower.String,
 		})
 		log.Printf("Book %s by %s fetched", book.Title, book.Author)
 	}
@@ -134,6 +136,8 @@ func GetAllBooksFromLibrary(a *app.App) http.HandlerFunc {
 				UpdatedAt:     book.UpdatedAt,
 				LibraryID:     book.LibraryID,
 				CollectionID:  book.CollectionID.UUID,
+				IsAvailable:   book.IsAvailable,
+				Borrower:      book.Borrower.String,
 			}
 		}
 
@@ -176,6 +180,8 @@ func GetAllBooksFromCollection(a *app.App) http.HandlerFunc {
 				UpdatedAt:     book.UpdatedAt,
 				LibraryID:     book.LibraryID,
 				CollectionID:  book.CollectionID.UUID,
+				IsAvailable:   book.IsAvailable,
+				Borrower:      book.Borrower.String,
 			}
 		}
 
@@ -214,20 +220,11 @@ func UpdateBook(a *app.App) http.HandlerFunc {
 			Isbn = sql.NullString{String: params.Isbn, Valid: true}
 		}
 
-		var Borrower sql.NullString
-		if params.Borrower == "" {
-			Borrower = sql.NullString{Valid: false}
-		} else {
-			Borrower = sql.NullString{String: params.Borrower, Valid: true}
-		}
-
 		book, err := a.DB.UpdateBook(r.Context(), database.UpdateBookParams{
 			Title:         params.Title,
 			Author:        params.Author,
 			PublishedDate: PublishedDate,
 			Isbn:          Isbn,
-			IsAvailable:   params.IsAvailable,
-			Borrower:      Borrower,
 		})
 		if err != nil {
 			rest.RespondError(w, http.StatusInternalServerError, err.Error())

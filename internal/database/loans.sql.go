@@ -49,6 +49,43 @@ func (q *Queries) CreateLoan(ctx context.Context, arg CreateLoanParams) (Loan, e
 	return i, err
 }
 
+const getActiveLoans = `-- name: GetActiveLoans :many
+SELECT id, lender, borrower, book, lent_at, returned_at
+FROM loans
+WHERE returned_at IS NULL
+ORDER BY lent_at DESC
+`
+
+func (q *Queries) GetActiveLoans(ctx context.Context) ([]Loan, error) {
+	rows, err := q.db.QueryContext(ctx, getActiveLoans)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Loan
+	for rows.Next() {
+		var i Loan
+		if err := rows.Scan(
+			&i.ID,
+			&i.Lender,
+			&i.Borrower,
+			&i.Book,
+			&i.LentAt,
+			&i.ReturnedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getLoanHistory = `-- name: GetLoanHistory :many
 SELECT id, lender, borrower, book, lent_at, returned_at
 FROM loans

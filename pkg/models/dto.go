@@ -37,13 +37,13 @@ type UserResponse struct {
 	RefreshToken string    `json:"refresh_token"`
 	CreatedAt    time.Time `json:"created_time"`
 	UpdatedAt    time.Time `json:"updated_at"`
-	LibraryID    uuid.UUID `json:"library_id"`
 }
 
 // Library DTOs
 type CreateLibraryRequest struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	UserID      uuid.UUID `json:"user_id"`
 }
 
 type UpdateLibraryRequest struct {
@@ -57,6 +57,7 @@ type LibraryResponse struct {
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
+	UserID      uuid.UUID `json:"user_id"`
 }
 
 // Collection DTOs
@@ -110,6 +111,8 @@ type BookResponse struct {
 	CollectionID  uuid.UUID `json:"collection_id"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
+	IsAvailable   bool      `json:"is_available"`
+	Borrower      string    `json:"borrower"`
 }
 
 // Loan DTOs
