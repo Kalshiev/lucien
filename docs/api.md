@@ -15,7 +15,7 @@ The application listens on port `8080` by default.
 ### Authentication tokens
 
 - `POST /api/auth/login` returns a JWT access token and a refresh token.
-- Most protected endpoints require the JWT access token in the `Authorization` header.
+- Most protected endpoints require the JWT access token in the `Authorization` header (all routes under `/api` except `/api/auth/*`).
 - Token management endpoints use the refresh token in the `Authorization` header.
 
 ## Error response
@@ -32,21 +32,56 @@ Error responses are returned as JSON in the form:
 
 ### Admin
 
+Admin endpoints are restricted to `dev` environment (`PLATFORM=dev`). No JWT required.
+
 #### POST /admin/reset
 
-Resets the system by deleting all users.
+Deletes all users (and cascading data).
 
 - Authentication: none
-- Environment requirement: `PLATFORM` environment variable must be set to `dev`
-- Response: `200 OK` or `403 Forbidden`
+- Environment requirement: `PLATFORM` must be `dev`
+- Response: `200 OK` on success, `403 Forbidden` if not in dev mode
+
+#### GET /admin/libraries
+
+List all libraries across all users.
+
+- Authentication: none
+- Environment requirement: `PLATFORM` must be `dev`
+- Response `200 OK`:
+
+```json
+[
+  {
+    "id": "<uuid>",
+    "name": "City Library",
+    "created_at": "2026-...",
+    "updated_at": "2026-..."
+  }
+]
+```
+
+#### DELETE /admin/libraries
+
+Deletes all libraries.
+
+- Authentication: none
+- Environment requirement: `PLATFORM` must be `dev`
+- Response `200 OK`:
+
+```json
+{
+  "message": "All libraries deleted!"
+}
+```
 
 ---
 
-## Authentication
+### Authentication
 
-### POST /api/auth/register
+#### POST /api/auth/register
 
-Create a new user and automatically create a default library.
+Create a new user and automatically create a default library ("My Library").
 
 Request body:
 
@@ -65,13 +100,14 @@ Response `201 Created`:
   "id": "<uuid>",
   "username": "alice",
   "email": "alice@example.com",
-  "created_at": "2026-...",
-  "updated_at": "2026-...",
-  "library_id": "<uuid>"
+  "created_time": "2026-...",
+  "updated_at": "2026-..."
 }
 ```
 
-### POST /api/auth/login
+> Note: The `created_at` field is serialized as `created_time` in JSON.
+
+#### POST /api/auth/login
 
 Authenticate a user and receive both an access token and refresh token.
 
@@ -89,7 +125,7 @@ Response `200 OK`:
 ```json
 {
   "id": "<uuid>",
-  "created_at": "2026-...",
+  "created_time": "2026-...",
   "updated_at": "2026-...",
   "email": "alice@example.com",
   "token": "<jwt>",
@@ -97,9 +133,11 @@ Response `200 OK`:
 }
 ```
 
-### PATCH /api/users
+> Note: `created_time` is used instead of `created_at`.
 
-Update a user password.
+#### PATCH /api/users
+
+Update the authenticated user's password.
 
 Headers:
 - `Authorization: Bearer <jwt>`
@@ -118,22 +156,22 @@ Response `200 OK`:
 ```json
 {
   "id": "<uuid>",
-  "created_at": "2026-...",
+  "created_time": "2026-...",
   "updated_at": "2026-...",
   "email": "alice@example.com"
 }
 ```
 
-### DELETE /api/users/{userID}
+#### DELETE /api/users/{userID}
 
 Delete the authenticated user.
 
 Headers:
 - `Authorization: Bearer <jwt>`
 
-Response: `200 OK` on success.
+Response: `204 No Content` on success.
 
-> Note: The route includes `{userID}` but the implementation deletes the user account associated with the JWT.
+> Note: The route includes `{userID}` but the implementation deletes the user account associated with the JWT, regardless of the path parameter.
 
 ---
 
@@ -163,33 +201,17 @@ Response `201 Created`:
   "name": "City Library",
   "description": "Public library",
   "created_at": "2026-...",
-  "updated_at": "2026-..."
+  "updated_at": "2026-...",
+  "user_id": "<userUUID>"
 }
-```
-
-### GET /api/libraries
-
-List all libraries.
-
-Query parameters:
-- `sort=desc` — sort libraries by newest first
-
-Response `200 OK`:
-
-```json
-[
-  {
-    "id": "<uuid>",
-    "name": "City Library",
-    "created_at": "2026-...",
-    "updated_at": "2026-..."
-  }
-]
 ```
 
 ### GET /api/libraries/{libraryID}
 
 Get a library by its UUID.
+
+Headers:
+- `Authorization: Bearer <jwt>`
 
 Response `200 OK`:
 
@@ -199,7 +221,8 @@ Response `200 OK`:
   "name": "City Library",
   "description": "Public library",
   "created_at": "2026-...",
-  "updated_at": "2026-..."
+  "updated_at": "2026-...",
+  "user_id": "<userUUID>"
 }
 ```
 
@@ -219,17 +242,21 @@ Request body:
 }
 ```
 
-Response `202 Accepted`:
+Response `202 Accepted` — returns the raw database object with PascalCase field names:
 
 ```json
 {
-  "id": "<uuid>",
-  "name": "City Library",
-  "description": "Updated description",
-  "created_at": "2026-...",
-  "updated_at": "2026-..."
+  "ID": "<uuid>",
+  "Name": "City Library",
+  "Description": {"String": "Updated description", "Valid": true},
+  "CreatedAt": "2026-...",
+  "UpdatedAt": "2026-...",
+  "CollectionCount": 0,
+  "UserID": "<userUUID>"
 }
 ```
+
+> Note: This endpoint returns the database model directly (PascalCase keys, sql.NullString as object).
 
 ### DELETE /api/libraries/{libraryID}
 
@@ -341,19 +368,21 @@ Request body:
 }
 ```
 
-Response `202 Accepted`:
+Response `202 Accepted` — returns the raw database object with PascalCase field names:
 
 ```json
 {
-  "id": "<uuid>",
-  "name": "Science Fiction",
-  "description": "Updated desc",
-  "created_at": "2026-...",
-  "updated_at": "2026-...",
-  "library_id": "<libraryUUID>",
-  "book_count": 5
+  "ID": "<uuid>",
+  "Name": "Science Fiction",
+  "Description": {"String": "Updated desc", "Valid": true},
+  "BookCount": 5,
+  "CreatedAt": "2026-...",
+  "UpdatedAt": "2026-...",
+  "LibraryID": "<libraryUUID>"
 }
 ```
+
+> Note: This endpoint returns the database model directly (PascalCase keys, sql.NullString as object).
 
 ### DELETE /api/libraries/{libraryID}/collections/{collectionID}
 
@@ -391,25 +420,32 @@ Request body:
 }
 ```
 
-Response `201 Created`:
+Response `201 Created` — returns the raw database object with PascalCase field names:
 
 ```json
 {
-  "id": "<uuid>",
-  "title": "Dune",
-  "author": "Frank Herbert",
-  "published_date": "1965-08-01T00:00:00Z",
-  "isbn": "9780441013593",
-  "library_id": "<libraryUUID>",
-  "collection_id": "<collectionUUID>",
-  "created_at": "2026-...",
-  "updated_at": "2026-..."
+  "ID": "<uuid>",
+  "Title": "Dune",
+  "Author": "Frank Herbert",
+  "PublishedDate": "1965-08-01T00:00:00Z",
+  "Isbn": "9780441013593",
+  "LibraryID": "<libraryUUID>",
+  "CreatedAt": "2026-...",
+  "UpdatedAt": "2026-...",
+  "CollectionID": "<collectionUUID>",
+  "IsAvailable": true,
+  "Borrower": ""
 }
 ```
+
+> Note: This endpoint returns the database model directly (PascalCase keys).
 
 ### GET /api/libraries/{libraryID}/books/{bookID}
 
 Get a book by its UUID.
+
+Headers:
+- `Authorization: Bearer <jwt>`
 
 Response `200 OK`:
 
@@ -423,44 +459,6 @@ Response `200 OK`:
   "library_id": "<libraryUUID>",
   "collection_id": "<collectionUUID>",
   "created_at": "2026-...",
-  "updated_at": "2026-..."
-}
-```
-
-### PATCH /api/libraries/{libraryID}/books/{bookID}
-
-Update a book.
-
-Headers:
-- `Authorization: Bearer <jwt>`
-
-Request body:
-
-```json
-{
-  "title": "Dune Messiah",
-  "author": "Frank Herbert",
-  "published_date": "1969-10-15T00:00:00Z",
-  "isbn": "9780441172696",
-  "library_id": "<libraryUUID>",
-  "collection_id": "<collectionUUID>",
-  "is_available": true,
-  "borrower": ""
-}
-```
-
-Response `201 Created`:
-
-```json
-{
-  "id": "<uuid>",
-  "title": "Dune Messiah",
-  "author": "Frank Herbert",
-  "published_date": "1969-10-15T00:00:00Z",
-  "isbn": "9780441172696",
-  "library_id": "<libraryUUID>",
-  "collection_id": "<collectionUUID>",
-  "created_at": "2026-...",
   "updated_at": "2026-...",
   "is_available": true,
   "borrower": ""
@@ -470,6 +468,9 @@ Response `201 Created`:
 ### GET /api/libraries/{libraryID}/books
 
 List all books in a library.
+
+Headers:
+- `Authorization: Bearer <jwt>`
 
 Query parameters:
 - `sort=desc` — sort books by newest first
@@ -487,10 +488,50 @@ Response `200 OK`:
     "library_id": "<libraryUUID>",
     "collection_id": "<collectionUUID>",
     "created_at": "2026-...",
-    "updated_at": "2026-..."
+    "updated_at": "2026-...",
+    "is_available": true,
+    "borrower": ""
   }
 ]
 ```
+
+### PATCH /api/libraries/{libraryID}/books/{bookID}
+
+Update a book's title, author, published date, and/or ISBN.
+
+Headers:
+- `Authorization: Bearer <jwt>`
+
+Request body:
+
+```json
+{
+  "title": "Dune Messiah",
+  "author": "Frank Herbert",
+  "published_date": "1969-10-15T00:00:00Z",
+  "isbn": "9780441172696"
+}
+```
+
+Response `201 Created` — returns the raw database object with PascalCase field names:
+
+```json
+{
+  "ID": "<uuid>",
+  "Title": "Dune Messiah",
+  "Author": "Frank Herbert",
+  "PublishedDate": "1969-10-15T00:00:00Z",
+  "Isbn": "9780441172696",
+  "LibraryID": "<libraryUUID>",
+  "CreatedAt": "2026-...",
+  "UpdatedAt": "2026-...",
+  "CollectionID": "<collectionUUID>",
+  "IsAvailable": true,
+  "Borrower": ""
+}
+```
+
+> Note: This endpoint returns the database model directly (PascalCase keys).
 
 ### GET /api/libraries/{libraryID}/collections/{collectionID}/books
 
@@ -515,7 +556,9 @@ Response `200 OK`:
     "library_id": "<libraryUUID>",
     "collection_id": "<collectionUUID>",
     "created_at": "2026-...",
-    "updated_at": "2026-..."
+    "updated_at": "2026-...",
+    "is_available": true,
+    "borrower": ""
   }
 ]
 ```
@@ -527,48 +570,52 @@ Add or move a book into a collection.
 Headers:
 - `Authorization: Bearer <jwt>`
 
-Response `202 Accepted`:
+Response `202 Accepted` — returns the raw database object with PascalCase field names:
 
 ```json
 {
-  "id": "<uuid>",
-  "title": "Dune",
-  "author": "Frank Herbert",
-  "published_date": "1965-08-01T00:00:00Z",
-  "isbn": "9780441013593",
-  "library_id": "<libraryUUID>",
-  "collection_id": "<collectionUUID>",
-  "created_at": "2026-...",
-  "updated_at": "2026-...",
-  "is_available": true,
-  "borrower": ""
+  "ID": "<uuid>",
+  "Title": "Dune",
+  "Author": "Frank Herbert",
+  "PublishedDate": "1965-08-01T00:00:00Z",
+  "Isbn": "9780441013593",
+  "LibraryID": "<libraryUUID>",
+  "CreatedAt": "2026-...",
+  "UpdatedAt": "2026-...",
+  "CollectionID": "<collectionUUID>",
+  "IsAvailable": true,
+  "Borrower": ""
 }
 ```
 
+> Note: This endpoint returns the database model directly (PascalCase keys).
+
 ### DELETE /api/libraries/{libraryID}/collections/{collectionID}/books/{bookID}
 
-Remove a book from its collection.
+Remove a book from its collection (sets `collection_id` to null).
 
 Headers:
 - `Authorization: Bearer <jwt>`
 
-Response `202 Accepted`:
+Response `202 Accepted` — returns the raw database object with PascalCase field names:
 
 ```json
 {
-  "id": "<uuid>",
-  "title": "Dune",
-  "author": "Frank Herbert",
-  "published_date": "1965-08-01T00:00:00Z",
-  "isbn": "9780441013593",
-  "library_id": "<libraryUUID>",
-  "collection_id": null,
-  "created_at": "2026-...",
-  "updated_at": "2026-...",
-  "is_available": true,
-  "borrower": ""
+  "ID": "<uuid>",
+  "Title": "Dune",
+  "Author": "Frank Herbert",
+  "PublishedDate": "1965-08-01T00:00:00Z",
+  "Isbn": "9780441013593",
+  "LibraryID": "<libraryUUID>",
+  "CreatedAt": "2026-...",
+  "UpdatedAt": "2026-...",
+  "CollectionID": null,
+  "IsAvailable": true,
+  "Borrower": ""
 }
 ```
+
+> Note: This endpoint returns the database model directly (PascalCase keys).
 
 ### DELETE /api/libraries/{libraryID}/books/{bookID}
 
@@ -580,8 +627,10 @@ Headers:
 Response `200 OK`:
 
 ```json
-"Book with id <bookID> succesfully deleted"
+"Book with id <bookID>succesfully deleted"
 ```
+
+> Note: There is no space before "succesfully" in the response string.
 
 ---
 
@@ -594,18 +643,20 @@ Lend a book to a borrower.
 Headers:
 - `Authorization: Bearer <jwt>`
 
-Response `200 OK`:
+Response `200 OK` — returns the raw database object with PascalCase field names:
 
 ```json
 {
-  "id": "<uuid>",
-  "lender": "<userUUID>",
-  "borrower": "Bob",
-  "book": "<bookUUID>",
-  "lent_at": "2026-...",
-  "returned_at": null
+  "ID": "<uuid>",
+  "Lender": "<userUUID>",
+  "Borrower": "Bob",
+  "Book": "<bookUUID>",
+  "LentAt": "2026-...",
+  "ReturnedAt": null
 }
 ```
+
+> Note: This endpoint returns the database model directly (PascalCase keys).
 
 ### PATCH /api/loans/{bookID}
 
@@ -614,18 +665,20 @@ Return a borrowed book.
 Headers:
 - `Authorization: Bearer <jwt>`
 
-Response `200 OK`:
+Response `200 OK` — returns the raw database object with PascalCase field names:
 
 ```json
 {
-  "id": "<uuid>",
-  "lender": "<userUUID>",
-  "borrower": "Bob",
-  "book": "<bookUUID>",
-  "lent_at": "2026-...",
-  "returned_at": "2026-..."
+  "ID": "<uuid>",
+  "Lender": "<userUUID>",
+  "Borrower": "Bob",
+  "Book": "<bookUUID>",
+  "LentAt": "2026-...",
+  "ReturnedAt": "2026-..."
 }
 ```
+
+> Note: This endpoint returns the database model directly (PascalCase keys).
 
 ### GET /api/loans/{bookID}
 
@@ -648,6 +701,31 @@ Response `200 OK`:
     "book": "<bookUUID>",
     "lent_at": "2026-...",
     "returned_at": "2026-..."
+  }
+]
+```
+
+### GET /api/loans/
+
+Get all active (unreturned) loans.
+
+Headers:
+- `Authorization: Bearer <jwt>`
+
+Query parameters:
+- `sort=desc` — sort loans by newest first
+
+Response `200 OK`:
+
+```json
+[
+  {
+    "id": "<uuid>",
+    "lender": "<userUUID>",
+    "borrower": "Bob",
+    "book": "<bookUUID>",
+    "lent_at": "2026-...",
+    "returned_at": null
   }
 ]
 ```
@@ -686,4 +764,8 @@ Response `200 OK`:
 
 - The API relies on UUID values for `libraryID`, `collectionID`, `bookID`, and user IDs.
 - Some endpoints accept optional sort query parameters: `sort=desc`.
+- All endpoints under `/api` (except `/api/auth/register` and `/api/auth/login`) require JWT authentication.
+- Some endpoints return the raw database model directly, resulting in **PascalCase** JSON keys (e.g., `ID`, `Title`, `CreatedAt`) and raw sql.Null* types. These are noted in their respective sections.
+- Other endpoints return formatted response structs with **snake_case** JSON keys (e.g., `id`, `title`, `created_at`).
 - `POST /api/auth/login` returns both an access JWT and a refresh token for later token renewal.
+- The `created_at` field in user-related responses is serialized as `created_time` in JSON.
